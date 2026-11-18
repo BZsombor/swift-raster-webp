@@ -4,7 +4,12 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-18
+
 ### Added
 
 - RIFF container parsing.
 - `WebPImageInfo` for reading image properties without decoding pixels.
+
+[Unreleased]: https://github.com/BZsombor/swift-raster-webp/compare/0.1.0...HEAD
+[0.1.0]: https://github.com/BZsombor/swift-raster-webp/releases/tag/0.1.0

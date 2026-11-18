@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Állapot** | A K1–K6 kérdések lezárva, az M1 helyben kész, az első CI-futásra vár |
+| **Állapot** | Az M1 kiadva 0.1.0 verzióként, a következő az M2 (VP8L dekóder) |
 | **Dátum** | 2026-11-18 |
 | **Cél** | Könnyű, gyors, tisztán Swiftben írt, cross-platform WebP-kodek |
 | **Nagyobb kép** | A `raster` képfeldolgozó könyvtár első építőköve |
@@ -667,7 +667,7 @@ A méret relatív becslés (S, M, L, XL). A mérföldköveknek nincs határidej�
 
 **Kész, ha:**
 
-- [ ] A CI minden platformon zöld. *(A GitHub-repó létrehozása után igazolható.)*
+- [x] A CI minden platformon zöld.
 - [x] A parser a teljes tesztkészlet metaadatait helyesen olvassa, a `webpinfo`-val összevetve.
 - [x] A csonkolási és bitforgatási tesztek átmennek.
 - [x] Az ADR-ek rögzítik a validáló prototípusok eredményét.
