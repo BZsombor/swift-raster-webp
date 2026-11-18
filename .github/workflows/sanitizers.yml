@@ -1,0 +1,28 @@
+name: Sanitizers
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  sanitize:
+    name: ${{ matrix.sanitizer }}
+    runs-on: ubuntu-24.04
+    container: swift:6.3-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, thread]
+    env:
+      # XCTest's own runner objects are reported as leaks on Linux.
+      ASAN_OPTIONS: detect_leaks=0
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Download the conformance corpus
+        run: ./Scripts/fetch-corpus.sh
+      - name: Test with the sanitizer
+        run: swift test --sanitize=${{ matrix.sanitizer }}

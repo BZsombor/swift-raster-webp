@@ -1,0 +1,11 @@
+.DS_Store
+.build/
+.swiftpm/
+.vscode/
+.corpus/
+*.xcodeproj
+xcuserdata/
+DerivedData/
+Package.resolved
+Fuzz/out/
+Fuzz/corpus/

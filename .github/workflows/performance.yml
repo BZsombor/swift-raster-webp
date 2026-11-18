@@ -1,0 +1,24 @@
+name: Performance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks:
+    name: Benchmarks
+    # Instruction counts are not available inside Linux containers.
+    runs-on: macos-26
+    env:
+      BENCHMARK_DISABLE_JEMALLOC: "true"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Select the newest Xcode
+        run: sudo xcode-select --switch "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+      - name: Run the benchmarks
+        working-directory: Benchmarks
+        run: swift package --disable-sandbox --allow-writing-to-package-directory benchmark --no-progress

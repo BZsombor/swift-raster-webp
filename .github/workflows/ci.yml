@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cross-platform:
+    name: Linux, Windows and Android
+    uses: swiftlang/github-workflows/.github/workflows/swift_package_test.yml@c0b30fc3584cdf10e16c0710a90810d3e8b274dd
+    with:
+      linux_swift_versions: '["6.3", "6.4"]'
+      linux_os_versions: '["noble"]'
+      linux_host_archs: '["x86_64", "aarch64"]'
+      linux_pre_build_command: ./Scripts/fetch-corpus.sh
+      enable_linux_static_sdk_build: true
+      linux_static_sdk_versions: '["6.4"]'
+      windows_swift_versions: '["6.3", "6.4"]'
+      enable_android_sdk_build: true
+      enable_android_sdk_checks: true
+      android_sdk_versions: '["6.4"]'
+
+  # The shared workflow's macOS and iOS jobs need self-hosted runners.
+  apple:
+    name: Apple platforms
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Select the newest Xcode
+        run: sudo xcode-select --switch "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+      - name: Download the conformance corpus
+        run: ./Scripts/fetch-corpus.sh
+      - name: Test on macOS
+        run: swift test
+      - name: Test on iOS Simulator and build for other platforms
+        run: ./Scripts/test-apple-platforms.sh
+
+  webassembly:
+    name: WebAssembly
+    runs-on: ubuntu-24.04
+    container: swift:6.3.3-noble
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Install the Swift SDK for WebAssembly
+        run: >
+          swift sdk install
+          https://download.swift.org/swift-6.3.3-release/wasm-sdk/swift-6.3.3-RELEASE/swift-6.3.3-RELEASE_wasm.artifactbundle.tar.gz
+          --checksum cabfa08b73bb8ac783927ecd15fa386e99d0c139c5f232445067bcf58379cae7
+      - name: Test on 32-bit WebAssembly
+        run: swift test --swift-sdk swift-6.3.3-RELEASE_wasm

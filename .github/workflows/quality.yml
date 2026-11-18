@@ -1,0 +1,50 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    name: Formatting
+    runs-on: ubuntu-24.04
+    container: swift:6.4-noble
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Check formatting
+        run: >
+          swift format lint --strict --recursive
+          Package.swift Sources Tests Tools/Package.swift Tools/Sources
+          Benchmarks/Package.swift Benchmarks/Benchmarks Fuzz/Sources
+
+  api-breakage:
+    name: API compatibility
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    container: swift:6.4-noble
+    # Breaking changes are allowed before 1.0, so this only reports them for now.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+      - name: Compare with the base branch
+        run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          swift package diagnose-api-breaking-changes "origin/${GITHUB_BASE_REF}"
+
+  documentation:
+    name: Documentation
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Select the newest Xcode
+        run: sudo xcode-select --switch "$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+      - name: Build the documentation
+        run: |
+          scheme="$(xcodebuild -list 2>/dev/null | sed -nE 's/^[[:space:]]+(swift-raster-webp(-Package)?)$/\1/p' | tail -1)"
+          xcodebuild docbuild -quiet -scheme "${scheme}" -destination generic/platform=macOS
