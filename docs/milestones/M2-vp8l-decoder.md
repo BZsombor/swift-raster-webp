@@ -4,7 +4,7 @@
 |---|---|
 | **Cél** | Veszteségmentes WebP-képek dekódolása tiszta Swiftben |
 | **Kiadás** | 0.2.0 |
-| **Állapot** | Helyben kész, az első CI-futásra vár |
+| **Állapot** | Kész, a CI minden platformon zöld |
 | **Normatív forrás** | RFC 9649, 3. fejezet |
 | **Alapszabály** | A kód a szabványból készül, más könyvtárakból nem veszünk át kódot ([ADR 0003](../adr/0003-implementation-sources.md)) |
 
@@ -29,7 +29,7 @@
 - [x] Az ASan és TSan futások tiszták.
 - [x] A sebesség eléri a libwebp 50%-át a referenciaképen, vagyis legalább 37 Mpx/s.
 - [x] A dekóder bináris mérete rögzítve van, és a 400 KB-os kereten belül marad.
-- [ ] A CI minden platformon zöld.
+- [x] A CI minden platformon zöld.
 
 ## 3. Publikus API
 

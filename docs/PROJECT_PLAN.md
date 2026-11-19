@@ -691,7 +691,7 @@ Az x86-64-es és a WebAssembly-teljesítmény mérése az M2-re marad, mert addi
 
 ### M3 – VP8 dekóder és alpha
 
-**Méret: XL** · **Kiadás: 0.3.0**
+**Méret: XL** · **Kiadás: 0.3.0** · [Részletes terv](milestones/M3-vp8-decoder.md)
 
 - Bool decoder, fejlécek, predikció, IDCT, loop filter.
 - Soronkénti pipeline, fancy upsampling, YUV-konverzió.
