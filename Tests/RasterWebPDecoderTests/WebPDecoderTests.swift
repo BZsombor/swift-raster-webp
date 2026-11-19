@@ -12,7 +12,7 @@ private let golden: [String: GoldenEntry] = {
     var entries: [String: GoldenEntry] = [:]
     for line in String(decoding: PackageResources.fixtures_tsv, as: UTF8.self).split(separator: "\n") {
         let fields = line.split(separator: "\t").map(String.init)
-        guard fields.count == 8, fields[1] == "ok" else {
+        guard fields.count >= 8, fields[1] == "ok" else {
             continue
         }
         let name = String(fields[0].dropLast(".webp".count))
@@ -181,7 +181,8 @@ struct WebPDecoderTests {
         }
     }
 
-    @Test func lossyImagesAreReportedAsUnsupported() {
+    @Test func lossyPartitionThatExceedsItsChunkIsRejected() {
+        // The frame tag declares a first partition of 1 byte, but no bytes follow the header.
         let payload: [UInt8] = [0x30, 0x00, 0x00, 0x9D, 0x01, 0x2A, 0x01, 0x00, 0x01, 0x00]
         let file =
             Array("RIFF".utf8) + [22, 0, 0, 0] + Array("WEBPVP8 ".utf8) + [10, 0, 0, 0] + payload
@@ -190,7 +191,7 @@ struct WebPDecoderTests {
             _ = try WebPDecoder.decode(file)
             Issue.record("Expected a failure")
         } catch {
-            #expect(error.kind == .unsupportedFeature)
+            #expect(error.kind == .malformedBitstream)
         }
     }
 }

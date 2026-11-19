@@ -92,6 +92,9 @@ extension WebPError {
         case vp8lInvalidPrefixCode
         case vp8lInvalidCodeLengths
         case vp8lInvalidBackwardReference
+        case vp8InvalidPartitions
+        case alphaInvalidCompression
+        case alphaDataTooShort
 
         case lossyDecodingUnsupported
         case animationDecodingUnsupported
@@ -118,7 +121,8 @@ extension WebPError {
                 .vp8PartitionExceedsChunk, .vp8MissingStartCode, .vp8EmptyDimension,
                 .vp8lHeaderTooShort, .vp8lMissingSignature, .vp8lUnknownVersion,
                 .vp8lDuplicateTransform, .vp8lInvalidColorCacheSize, .vp8lInvalidPrefixCode,
-                .vp8lInvalidCodeLengths, .vp8lInvalidBackwardReference:
+                .vp8lInvalidCodeLengths, .vp8lInvalidBackwardReference, .vp8InvalidPartitions,
+                .alphaInvalidCompression, .alphaDataTooShort:
                 .malformedBitstream
             case .lossyDecodingUnsupported, .animationDecodingUnsupported:
                 .unsupportedFeature
@@ -166,6 +170,9 @@ extension WebPError {
             case .vp8lInvalidPrefixCode: "A VP8L prefix code is invalid."
             case .vp8lInvalidCodeLengths: "The VP8L code lengths are invalid."
             case .vp8lInvalidBackwardReference: "A VP8L backward reference is invalid."
+            case .vp8InvalidPartitions: "The VP8 partitions do not fit in their chunk."
+            case .alphaInvalidCompression: "The alpha compression method is unknown."
+            case .alphaDataTooShort: "The uncompressed alpha data is too short."
             case .lossyDecodingUnsupported: "Decoding lossy WebP images is not supported yet."
             case .animationDecodingUnsupported: "Decoding animated WebP images is not supported yet."
             case .pixelLimitExceeded: "The image has more pixels than the configured limit."

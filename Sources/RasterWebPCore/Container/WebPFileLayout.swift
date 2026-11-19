@@ -6,9 +6,13 @@ package struct WebPFileLayout {
     /// The payload of the still image's `VP8 ` or `VP8L` chunk, or `nil` for an animation.
     package let imagePayload: Range<Int>?
 
-    init(info: WebPImageInfo, imagePayload: Range<Int>?) {
+    /// The payload of the `ALPH` chunk that belongs to a lossy still image, if there is one.
+    package let alphaPayload: Range<Int>?
+
+    init(info: WebPImageInfo, imagePayload: Range<Int>?, alphaPayload: Range<Int>? = nil) {
         self.info = info
         self.imagePayload = imagePayload
+        self.alphaPayload = alphaPayload
     }
 
     /// Locates the contents of a complete WebP file.
