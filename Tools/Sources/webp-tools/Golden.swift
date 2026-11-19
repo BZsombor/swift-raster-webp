@@ -64,32 +64,44 @@ func pixelHash(ofPAM url: URL) throws -> UInt64 {
 
 /// Records what libwebp reports for every file in the conformance corpus.
 ///
-/// Each line holds: file, status, width, height, compression, alpha, animated, pixel hash.
+/// Each line holds: file, status, width, height, compression, alpha, animated, pixel hash and,
+/// for lossy images, the hash of the Y, U and V planes.
 func generateGolden(corpus: URL, output: URL) throws {
     let files = try FileManager.default.contentsOfDirectory(at: corpus, includingPropertiesForKeys: nil)
         .filter { $0.pathExtension == "webp" }
         .sorted { $0.lastPathComponent < $1.lastPathComponent }
 
-    var lines = ["# file\tstatus\twidth\theight\tcompression\talpha\tanimated\tpixels-fnv1a64"]
+    var lines = ["# file\tstatus\twidth\theight\tcompression\talpha\tanimated\tpixels-fnv1a64\tyuv-fnv1a64"]
 
     try withTemporaryDirectory { work in
         let decoded = work.appendingPathComponent("decoded.pam")
+        let planes = work.appendingPathComponent("decoded.yuv")
         for file in files {
             let name = file.lastPathComponent
             let info = try runTool("webpinfo", [file.path])
             let decode = try runTool("dwebp", ["-quiet", "-pam", file.path, "-o", decoded.path])
 
             guard info.succeeded, decode.succeeded else {
-                lines.append("\(name)\tinvalid\t-\t-\t-\t-\t-\t-")
+                lines.append("\(name)\tinvalid\t-\t-\t-\t-\t-\t-\t-")
                 continue
             }
 
             let entry = ReferenceEntry(webpinfoOutput: info.output)
             let hash = String(try pixelHash(ofPAM: decoded), radix: 16)
+
+            // `dwebp -yuv` writes Y, U and V planes, followed by an alpha plane when there is one.
+            var planeHash = "-"
+            if entry.compression == "lossy" {
+                try requireTool("dwebp", ["-quiet", "-yuv", file.path, "-o", planes.path])
+                let chromaCount = ((entry.width + 1) / 2) * ((entry.height + 1) / 2)
+                let planeCount = entry.width * entry.height + 2 * chromaCount
+                let data = try Data(contentsOf: planes)
+                planeHash = String(data.prefix(planeCount).withUnsafeBytes(fnv1a), radix: 16)
+            }
             lines.append(
                 [
                     name, "ok", String(entry.width), String(entry.height), entry.compression,
-                    String(entry.hasAlpha), String(entry.isAnimated), hash,
+                    String(entry.hasAlpha), String(entry.isAnimated), hash, planeHash,
                 ]
                 .joined(separator: "\t")
             )

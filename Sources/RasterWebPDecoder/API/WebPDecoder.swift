@@ -158,14 +158,18 @@ public enum WebPDecoder {
             do throws(WebPError) {
                 var budget = MemoryBudget(limit: options.limits.maximumMemoryByteCount)
                 try budget.reserve(count: pixelCount, elementSize: MemoryLayout<UInt32>.stride)
-                try LosslessDecoder.decode(
-                    input: bytes,
-                    bitstream: source.bitstream,
-                    width: source.width,
-                    height: source.height,
-                    budget: budget,
-                    into: &pixels
-                )
+                if source.isLossless {
+                    try LosslessDecoder.decode(
+                        input: bytes,
+                        bitstream: source.bitstream,
+                        width: source.width,
+                        height: source.height,
+                        budget: budget,
+                        into: &pixels
+                    )
+                } else {
+                    try decodeLossy(bytes, source: source, budget: &budget, into: &pixels)
+                }
             } catch {
                 failure = error
                 return
@@ -197,12 +201,53 @@ public enum WebPDecoder {
     }
 }
 
+extension WebPDecoder {
+    /// Decodes a VP8 frame and its optional alpha plane into ARGB pixels.
+    fileprivate static func decodeLossy(
+        _ bytes: Span<UInt8>,
+        source: DecodingSource,
+        budget: inout MemoryBudget,
+        into pixels: inout MutableSpan<UInt32>
+    ) throws(WebPError) {
+        var alpha: [UInt8] = []
+        if let alphaPayload = source.alphaPayload {
+            alpha = try AlphaDecoder.decode(
+                input: bytes,
+                payload: alphaPayload,
+                width: source.width,
+                height: source.height,
+                budget: &budget
+            )
+        }
+
+        var converter = YUVRowConverter(width: source.width, height: source.height)
+        try LossyDecoder.decode(
+            input: bytes,
+            payload: source.bitstream,
+            width: source.width,
+            height: source.height,
+            budget: &budget
+        ) { luma, u, v, rows in
+            alpha.withElementSpan { alpha in
+                converter.convert(luma: luma, u: u, v: v, rows: rows, alpha: alpha, into: &pixels)
+            }
+        }
+    }
+}
+
 /// The validated location and properties of the image in a file.
 private struct DecodingSource {
     private static var losslessHeaderSize: Int { 5 }
 
     let info: WebPImageInfo
+
+    /// The VP8L bitstream after its header, or the whole payload of a `VP8 ` chunk.
     let bitstream: Range<Int>
+
+    /// The payload of the `ALPH` chunk of a lossy image.
+    let alphaPayload: Range<Int>?
+
+    var isLossless: Bool { info.compression == .lossless }
 
     var width: Int { info.width }
     var height: Int { info.height }
@@ -214,10 +259,6 @@ private struct DecodingSource {
         guard !info.isAnimated, let payload = layout.imagePayload else {
             throw WebPError(.animationDecodingUnsupported)
         }
-        guard info.compression == .lossless else {
-            throw WebPError(.lossyDecodingUnsupported)
-        }
-
         let (pixelCount, overflow) = info.width.multipliedReportingOverflow(by: info.height)
         guard !overflow, pixelCount <= limits.maximumPixelCount else {
             throw WebPError(.pixelLimitExceeded)
@@ -227,6 +268,11 @@ private struct DecodingSource {
             throw WebPError(.memoryLimitExceeded)
         }
 
-        bitstream = (payload.lowerBound + Self.losslessHeaderSize)..<payload.upperBound
+        if info.compression == .lossless {
+            bitstream = (payload.lowerBound + Self.losslessHeaderSize)..<payload.upperBound
+        } else {
+            bitstream = payload
+        }
+        alphaPayload = layout.alphaPayload
     }
 }

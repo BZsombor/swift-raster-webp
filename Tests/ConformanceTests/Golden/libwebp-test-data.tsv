@@ -1,132 +1,132 @@
-# file	status	width	height	compression	alpha	animated	pixels-fnv1a64
-alpha_color_cache.webp	ok	588	97	lossy	true	false	6ab19548368122c0
-alpha_filter_0_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_filter_0_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_filter_1.webp	ok	16	16	lossy	true	false	d951193698a4ad25
-alpha_filter_1_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_filter_1_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_filter_2.webp	ok	16	16	lossy	true	false	d951193698a4ad25
-alpha_filter_2_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_filter_2_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_filter_3.webp	ok	16	16	lossy	true	false	d951193698a4ad25
-alpha_filter_3_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_filter_3_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c
-alpha_no_compression.webp	ok	16	16	lossy	true	false	d951193698a4ad25
-bad_palette_index.webp	ok	128	128	lossless	false	false	4cfe1d3b4d055574
-big_endian_bug_393.webp	ok	256	256	lossy	true	false	2329afe606593225
-bryce.webp	ok	11158	2156	lossy	false	false	c197f5985e8c2193
-bug3.webp	ok	95	95	lossy	false	false	320433e2e9674532
-color_cache_bits_11.webp	ok	128	128	lossless	false	false	6b7b28c7e89c460f
-dual_transform.webp	ok	100	30	lossless	true	false	39a6314580645018
-lossless1.webp	ok	1000	307	lossless	true	false	2a92d584a4121ef0
-lossless2.webp	ok	1000	307	lossless	true	false	2a92d584a4121ef0
-lossless3.webp	ok	1000	307	lossless	true	false	2a92d584a4121ef0
-lossless4.webp	ok	256	256	lossless	true	false	ab19b303f147a31
-lossless_big_random_alpha.webp	ok	2048	2048	lossless	true	false	978cd886cd247276
-lossless_color_transform.webp	ok	512	512	lossless	false	false	aa0c0ec9f38d1040
-lossless_vec_1_0.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_1.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_10.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_11.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_12.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_13.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_14.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_15.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_2.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_3.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_4.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_5.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_6.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_7.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_8.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_1_9.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25
-lossless_vec_2_0.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_1.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_10.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_11.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_12.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_13.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_14.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_15.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_2.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_3.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_4.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_5.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_6.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_7.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_8.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossless_vec_2_9.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200
-lossy_alpha1.webp	ok	1000	307	lossy	true	false	4240314cd013dd6a
-lossy_alpha2.webp	ok	1000	307	lossy	true	false	5b312c26f450143e
-lossy_alpha3.webp	ok	1000	307	lossy	true	false	1053fcdf6ce3d881
-lossy_alpha4.webp	ok	100	100	lossy	true	false	89792cf82b790db
-lossy_extreme_probabilities.webp	ok	800	534	lossy	false	false	3d3ef7d2963b68d9
-lossy_q0_f100.webp	ok	128	128	lossy	false	false	6105d43f2e6accd4
-near_lossless_75.webp	ok	256	256	lossless	false	false	20066502c17e3580
-one_color_no_palette.webp	ok	100	100	lossless	true	false	600f98ab98233825
-segment01.webp	ok	160	160	lossy	false	false	d912091b107e5ab9
-segment02.webp	ok	160	160	lossy	false	false	34bed831577fe566
-segment03.webp	ok	160	160	lossy	false	false	1b7e4983171196d2
-small_13x1.webp	ok	13	1	lossy	false	false	d90f33779f2b844f
-small_1x1.webp	ok	1	1	lossy	false	false	b31b3f7d028d4e30
-small_1x13.webp	ok	1	13	lossy	false	false	d90f33779f2b844f
-small_31x13.webp	ok	31	13	lossy	false	false	828552c958a060e6
-test-nostrong.webp	ok	128	128	lossy	false	false	1cee1c6de50c2ff
-test.webp	ok	128	128	lossy	false	false	6b7b28c7e89c460f
-very_short.webp	ok	63	66	lossy	false	false	f306bcc1c1ddfa7e
-vp80-00-comprehensive-001.webp	ok	176	144	lossy	false	false	9d45036e7c333bee
-vp80-00-comprehensive-002.webp	ok	176	144	lossy	false	false	b4e67879b8927e89
-vp80-00-comprehensive-003.webp	ok	176	144	lossy	false	false	7e1e1fde7a85db0d
-vp80-00-comprehensive-004.webp	ok	176	144	lossy	false	false	9d45036e7c333bee
-vp80-00-comprehensive-005.webp	ok	176	144	lossy	false	false	87b7375d89c8230b
-vp80-00-comprehensive-006.webp	ok	175	143	lossy	false	false	93a74e5c5379162
-vp80-00-comprehensive-007.webp	ok	176	144	lossy	false	false	3952567803349531
-vp80-00-comprehensive-008.webp	ok	1432	888	lossy	false	false	39b1905df200daa1
-vp80-00-comprehensive-009.webp	ok	176	144	lossy	false	false	cac2ee7158d95e5b
-vp80-00-comprehensive-010.webp	ok	320	240	lossy	false	false	a2c21eed7e8172d3
-vp80-00-comprehensive-011.webp	ok	176	144	lossy	false	false	9d45036e7c333bee
-vp80-00-comprehensive-012.webp	ok	176	144	lossy	false	false	6b1ac1adce39b7be
-vp80-00-comprehensive-013.webp	ok	176	144	lossy	false	false	520deccc8f5f5a2d
-vp80-00-comprehensive-014.webp	ok	175	143	lossy	false	false	9dcfdacba0a1d9bc
-vp80-00-comprehensive-015.webp	ok	320	240	lossy	false	false	601c90817b899f1c
-vp80-00-comprehensive-016.webp	ok	176	144	lossy	false	false	bf84ca68a6f0b73e
-vp80-00-comprehensive-017.webp	ok	176	144	lossy	false	false	bf84ca68a6f0b73e
-vp80-01-intra-1400.webp	ok	176	144	lossy	false	false	bff537015e2998f6
-vp80-01-intra-1411.webp	ok	96	96	lossy	false	false	1e8ef4f8018d3782
-vp80-01-intra-1416.webp	ok	176	144	lossy	false	false	a3dbc0044a24452
-vp80-01-intra-1417.webp	ok	176	144	lossy	false	false	a363dea31684d33e
-vp80-02-inter-1402.webp	ok	176	144	lossy	false	false	bff537015e2998f6
-vp80-02-inter-1412.webp	ok	96	96	lossy	false	false	1e8ef4f8018d3782
-vp80-02-inter-1418.webp	ok	200	200	lossy	false	false	a373bad71886d2cc
-vp80-02-inter-1424.webp	ok	176	144	lossy	false	false	aca519f403f35c91
-vp80-03-segmentation-1401.webp	ok	176	144	lossy	false	false	bff537015e2998f6
-vp80-03-segmentation-1403.webp	ok	176	144	lossy	false	false	bff537015e2998f6
-vp80-03-segmentation-1407.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0
-vp80-03-segmentation-1408.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0
-vp80-03-segmentation-1409.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0
-vp80-03-segmentation-1410.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0
-vp80-03-segmentation-1413.webp	ok	96	96	lossy	false	false	1e8ef4f8018d3782
-vp80-03-segmentation-1414.webp	ok	320	240	lossy	false	false	2491f22859c7e58d
-vp80-03-segmentation-1415.webp	ok	320	240	lossy	false	false	2491f22859c7e58d
-vp80-03-segmentation-1425.webp	ok	176	144	lossy	false	false	e7664b9ce90bd5de
-vp80-03-segmentation-1426.webp	ok	352	288	lossy	false	false	fc5ffacdf2e91e59
-vp80-03-segmentation-1427.webp	ok	352	288	lossy	false	false	ce11cd1cfc694f8d
-vp80-03-segmentation-1432.webp	ok	352	288	lossy	false	false	848833c552659a9
-vp80-03-segmentation-1435.webp	ok	352	288	lossy	false	false	2cb421fe3d91da9a
-vp80-03-segmentation-1436.webp	ok	352	288	lossy	false	false	d6717aecce097ed9
-vp80-03-segmentation-1437.webp	ok	352	288	lossy	false	false	a6c1626a78c78a84
-vp80-03-segmentation-1441.webp	ok	352	288	lossy	false	false	b657ef00988d63fc
-vp80-03-segmentation-1442.webp	ok	352	288	lossy	false	false	71671ad88bc97f26
-vp80-04-partitions-1404.webp	ok	176	144	lossy	false	false	bff537015e2998f6
-vp80-04-partitions-1405.webp	ok	176	144	lossy	false	false	bff537015e2998f6
-vp80-04-partitions-1406.webp	ok	176	144	lossy	false	false	bff537015e2998f6
-vp80-05-sharpness-1428.webp	ok	352	288	lossy	false	false	5733d51555a63b62
-vp80-05-sharpness-1429.webp	ok	352	288	lossy	false	false	86f0df47e994b266
-vp80-05-sharpness-1430.webp	ok	352	288	lossy	false	false	38db4c5b639c0325
-vp80-05-sharpness-1431.webp	ok	352	288	lossy	false	false	5fdd171756dfd36c
-vp80-05-sharpness-1433.webp	ok	352	288	lossy	false	false	d6717aecce097ed9
-vp80-05-sharpness-1434.webp	ok	352	288	lossy	false	false	6b43d9ce2e0f126c
-vp80-05-sharpness-1438.webp	ok	352	288	lossy	false	false	96ee4537008979ff
-vp80-05-sharpness-1439.webp	ok	352	288	lossy	false	false	568a4619babaa260
-vp80-05-sharpness-1440.webp	ok	352	288	lossy	false	false	d6717aecce097ed9
-vp80-05-sharpness-1443.webp	ok	1920	96	lossy	false	false	d07f7c0f6fc79b49
+# file	status	width	height	compression	alpha	animated	pixels-fnv1a64	yuv-fnv1a64
+alpha_color_cache.webp	ok	588	97	lossy	true	false	6ab19548368122c0	e803e5af9258d285
+alpha_filter_0_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_filter_0_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_filter_1.webp	ok	16	16	lossy	true	false	d951193698a4ad25	cbeb5c9317233565
+alpha_filter_1_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_filter_1_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_filter_2.webp	ok	16	16	lossy	true	false	d951193698a4ad25	cbeb5c9317233565
+alpha_filter_2_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_filter_2_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_filter_3.webp	ok	16	16	lossy	true	false	d951193698a4ad25	cbeb5c9317233565
+alpha_filter_3_method_0.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_filter_3_method_1.webp	ok	128	128	lossy	true	false	72e31efcb440497c	c1bb88f6eb7079c3
+alpha_no_compression.webp	ok	16	16	lossy	true	false	d951193698a4ad25	cbeb5c9317233565
+bad_palette_index.webp	ok	128	128	lossless	false	false	4cfe1d3b4d055574	-
+big_endian_bug_393.webp	ok	256	256	lossy	true	false	2329afe606593225	4b4b470d9822ef7e
+bryce.webp	ok	11158	2156	lossy	false	false	c197f5985e8c2193	1da2b2d06cc3c504
+bug3.webp	ok	95	95	lossy	false	false	320433e2e9674532	f7344f3090302e53
+color_cache_bits_11.webp	ok	128	128	lossless	false	false	6b7b28c7e89c460f	-
+dual_transform.webp	ok	100	30	lossless	true	false	39a6314580645018	-
+lossless1.webp	ok	1000	307	lossless	true	false	2a92d584a4121ef0	-
+lossless2.webp	ok	1000	307	lossless	true	false	2a92d584a4121ef0	-
+lossless3.webp	ok	1000	307	lossless	true	false	2a92d584a4121ef0	-
+lossless4.webp	ok	256	256	lossless	true	false	ab19b303f147a31	-
+lossless_big_random_alpha.webp	ok	2048	2048	lossless	true	false	978cd886cd247276	-
+lossless_color_transform.webp	ok	512	512	lossless	false	false	aa0c0ec9f38d1040	-
+lossless_vec_1_0.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_1.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_10.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_11.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_12.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_13.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_14.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_15.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_2.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_3.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_4.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_5.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_6.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_7.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_8.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_1_9.webp	ok	16	16	lossless	true	false	ed71e7a7815f0b25	-
+lossless_vec_2_0.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_1.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_10.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_11.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_12.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_13.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_14.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_15.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_2.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_3.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_4.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_5.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_6.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_7.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_8.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossless_vec_2_9.webp	ok	128	128	lossless	false	false	96f0606f6a9f0200	-
+lossy_alpha1.webp	ok	1000	307	lossy	true	false	4240314cd013dd6a	1362727019ed9369
+lossy_alpha2.webp	ok	1000	307	lossy	true	false	5b312c26f450143e	7d03cfb05c22af33
+lossy_alpha3.webp	ok	1000	307	lossy	true	false	1053fcdf6ce3d881	16eaaa8dbd62b6a7
+lossy_alpha4.webp	ok	100	100	lossy	true	false	89792cf82b790db	4262154552d73ed7
+lossy_extreme_probabilities.webp	ok	800	534	lossy	false	false	3d3ef7d2963b68d9	7c1c7859ea82a35b
+lossy_q0_f100.webp	ok	128	128	lossy	false	false	6105d43f2e6accd4	d8afcf5ee04b25bb
+near_lossless_75.webp	ok	256	256	lossless	false	false	20066502c17e3580	-
+one_color_no_palette.webp	ok	100	100	lossless	true	false	600f98ab98233825	-
+segment01.webp	ok	160	160	lossy	false	false	d912091b107e5ab9	4e6f99839e8cc389
+segment02.webp	ok	160	160	lossy	false	false	34bed831577fe566	535fc57290e363f8
+segment03.webp	ok	160	160	lossy	false	false	1b7e4983171196d2	23cae3f08c15f41c
+small_13x1.webp	ok	13	1	lossy	false	false	d90f33779f2b844f	303ff26d8c2d199a
+small_1x1.webp	ok	1	1	lossy	false	false	b31b3f7d028d4e30	2bceb61809b82026
+small_1x13.webp	ok	1	13	lossy	false	false	d90f33779f2b844f	303ff26d8c2d199a
+small_31x13.webp	ok	31	13	lossy	false	false	828552c958a060e6	3ac8ab71561cabee
+test-nostrong.webp	ok	128	128	lossy	false	false	1cee1c6de50c2ff	aee8cdba6f33e62
+test.webp	ok	128	128	lossy	false	false	6b7b28c7e89c460f	93b92d6f982a331c
+very_short.webp	ok	63	66	lossy	false	false	f306bcc1c1ddfa7e	f62d87794bf8ea1d
+vp80-00-comprehensive-001.webp	ok	176	144	lossy	false	false	9d45036e7c333bee	8ca656678ff12060
+vp80-00-comprehensive-002.webp	ok	176	144	lossy	false	false	b4e67879b8927e89	fbdde270262bfda7
+vp80-00-comprehensive-003.webp	ok	176	144	lossy	false	false	7e1e1fde7a85db0d	72553a497e26177c
+vp80-00-comprehensive-004.webp	ok	176	144	lossy	false	false	9d45036e7c333bee	8ca656678ff12060
+vp80-00-comprehensive-005.webp	ok	176	144	lossy	false	false	87b7375d89c8230b	6a7a299c33adfee0
+vp80-00-comprehensive-006.webp	ok	175	143	lossy	false	false	93a74e5c5379162	818a7b8adbf5179
+vp80-00-comprehensive-007.webp	ok	176	144	lossy	false	false	3952567803349531	e235ce9d51b53173
+vp80-00-comprehensive-008.webp	ok	1432	888	lossy	false	false	39b1905df200daa1	b84b0a434d59f608
+vp80-00-comprehensive-009.webp	ok	176	144	lossy	false	false	cac2ee7158d95e5b	938ecac961be2c00
+vp80-00-comprehensive-010.webp	ok	320	240	lossy	false	false	a2c21eed7e8172d3	69f86f35b306f6c6
+vp80-00-comprehensive-011.webp	ok	176	144	lossy	false	false	9d45036e7c333bee	8ca656678ff12060
+vp80-00-comprehensive-012.webp	ok	176	144	lossy	false	false	6b1ac1adce39b7be	b4fa901f0b84c2e9
+vp80-00-comprehensive-013.webp	ok	176	144	lossy	false	false	520deccc8f5f5a2d	dd8331d80628180d
+vp80-00-comprehensive-014.webp	ok	175	143	lossy	false	false	9dcfdacba0a1d9bc	26effed6aecac8cf
+vp80-00-comprehensive-015.webp	ok	320	240	lossy	false	false	601c90817b899f1c	73a7dbcea8ce69cb
+vp80-00-comprehensive-016.webp	ok	176	144	lossy	false	false	bf84ca68a6f0b73e	7af0b351cbc02812
+vp80-00-comprehensive-017.webp	ok	176	144	lossy	false	false	bf84ca68a6f0b73e	7af0b351cbc02812
+vp80-01-intra-1400.webp	ok	176	144	lossy	false	false	bff537015e2998f6	b9a174f6eeaf6968
+vp80-01-intra-1411.webp	ok	96	96	lossy	false	false	1e8ef4f8018d3782	7b68b0985324e070
+vp80-01-intra-1416.webp	ok	176	144	lossy	false	false	a3dbc0044a24452	9c643e5735d714b6
+vp80-01-intra-1417.webp	ok	176	144	lossy	false	false	a363dea31684d33e	515c5a8ffb9c46d3
+vp80-02-inter-1402.webp	ok	176	144	lossy	false	false	bff537015e2998f6	b9a174f6eeaf6968
+vp80-02-inter-1412.webp	ok	96	96	lossy	false	false	1e8ef4f8018d3782	7b68b0985324e070
+vp80-02-inter-1418.webp	ok	200	200	lossy	false	false	a373bad71886d2cc	940e3ec5b9e7fde0
+vp80-02-inter-1424.webp	ok	176	144	lossy	false	false	aca519f403f35c91	8fe5e3ce5350938d
+vp80-03-segmentation-1401.webp	ok	176	144	lossy	false	false	bff537015e2998f6	b9a174f6eeaf6968
+vp80-03-segmentation-1403.webp	ok	176	144	lossy	false	false	bff537015e2998f6	b9a174f6eeaf6968
+vp80-03-segmentation-1407.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0	461b3d1e9d1648d3
+vp80-03-segmentation-1408.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0	461b3d1e9d1648d3
+vp80-03-segmentation-1409.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0	461b3d1e9d1648d3
+vp80-03-segmentation-1410.webp	ok	352	288	lossy	false	false	2c8c3cfee681a9d0	461b3d1e9d1648d3
+vp80-03-segmentation-1413.webp	ok	96	96	lossy	false	false	1e8ef4f8018d3782	7b68b0985324e070
+vp80-03-segmentation-1414.webp	ok	320	240	lossy	false	false	2491f22859c7e58d	c94eadc5e76e82c8
+vp80-03-segmentation-1415.webp	ok	320	240	lossy	false	false	2491f22859c7e58d	c94eadc5e76e82c8
+vp80-03-segmentation-1425.webp	ok	176	144	lossy	false	false	e7664b9ce90bd5de	9d331c9ad55b7cda
+vp80-03-segmentation-1426.webp	ok	352	288	lossy	false	false	fc5ffacdf2e91e59	4304fb0e4d51ce16
+vp80-03-segmentation-1427.webp	ok	352	288	lossy	false	false	ce11cd1cfc694f8d	2b64d964638e1144
+vp80-03-segmentation-1432.webp	ok	352	288	lossy	false	false	848833c552659a9	a1af07e58801a7f7
+vp80-03-segmentation-1435.webp	ok	352	288	lossy	false	false	2cb421fe3d91da9a	66c113dcac9eee58
+vp80-03-segmentation-1436.webp	ok	352	288	lossy	false	false	d6717aecce097ed9	7228a46348d15ee2
+vp80-03-segmentation-1437.webp	ok	352	288	lossy	false	false	a6c1626a78c78a84	1f09f0203ccf642c
+vp80-03-segmentation-1441.webp	ok	352	288	lossy	false	false	b657ef00988d63fc	a1dd6cdbdfba602a
+vp80-03-segmentation-1442.webp	ok	352	288	lossy	false	false	71671ad88bc97f26	7bf016c5f108f78f
+vp80-04-partitions-1404.webp	ok	176	144	lossy	false	false	bff537015e2998f6	b9a174f6eeaf6968
+vp80-04-partitions-1405.webp	ok	176	144	lossy	false	false	bff537015e2998f6	b9a174f6eeaf6968
+vp80-04-partitions-1406.webp	ok	176	144	lossy	false	false	bff537015e2998f6	b9a174f6eeaf6968
+vp80-05-sharpness-1428.webp	ok	352	288	lossy	false	false	5733d51555a63b62	bbf44f16c06f9180
+vp80-05-sharpness-1429.webp	ok	352	288	lossy	false	false	86f0df47e994b266	767d8733fefdd432
+vp80-05-sharpness-1430.webp	ok	352	288	lossy	false	false	38db4c5b639c0325	4bede4e8c86f8b25
+vp80-05-sharpness-1431.webp	ok	352	288	lossy	false	false	5fdd171756dfd36c	8d337a8f1b66bf68
+vp80-05-sharpness-1433.webp	ok	352	288	lossy	false	false	d6717aecce097ed9	7228a46348d15ee2
+vp80-05-sharpness-1434.webp	ok	352	288	lossy	false	false	6b43d9ce2e0f126c	9964e994e5a8c15
+vp80-05-sharpness-1438.webp	ok	352	288	lossy	false	false	96ee4537008979ff	e47595ab0ee7425
+vp80-05-sharpness-1439.webp	ok	352	288	lossy	false	false	568a4619babaa260	bb7a8e22d90c6c4d
+vp80-05-sharpness-1440.webp	ok	352	288	lossy	false	false	d6717aecce097ed9	7228a46348d15ee2
+vp80-05-sharpness-1443.webp	ok	1920	96	lossy	false	false	d07f7c0f6fc79b49	50a1551bf89aa06e

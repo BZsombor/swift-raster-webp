@@ -15,7 +15,7 @@
 
         init?(line: Substring) {
             let fields = line.split(separator: "\t").map(String.init)
-            guard fields.count == 8, fields[1] == "ok", let width = Int(fields[2]), let height = Int(fields[3]),
+            guard fields.count >= 8, fields[1] == "ok", let width = Int(fields[2]), let height = Int(fields[3]),
                 let pixelHash = UInt64(fields[7], radix: 16)
             else {
                 return nil
@@ -78,16 +78,23 @@
         }
 
         @Test(.enabled(if: corpusDirectory != nil, "Run Scripts/fetch-corpus.sh first"))
-        func losslessPixelsMatchLibwebp() throws {
+        func pixelsMatchLibwebp() throws {
             let directory = try #require(corpusDirectory)
-            let entries = goldenEntries.filter { $0.compression == .lossless }
-            #expect(entries.count > 40)
+            #expect(goldenEntries.count == 131)
 
-            for entry in entries {
+            var mismatches: [String] = []
+            for entry in goldenEntries {
                 let bytes = try [UInt8](Data(contentsOf: directory.appendingPathComponent(entry.file)))
-                let image = try WebPDecoder.decode(bytes)
-                #expect(fnv1a(image.pixels) == entry.pixelHash, "\(entry.file)")
+                do {
+                    let image = try WebPDecoder.decode(bytes)
+                    if fnv1a(image.pixels) != entry.pixelHash {
+                        mismatches.append(entry.file)
+                    }
+                } catch {
+                    mismatches.append("\(entry.file) (\(error))")
+                }
             }
+            #expect(mismatches.isEmpty, "\(mismatches.count) files differ: \(mismatches)")
         }
     }
 

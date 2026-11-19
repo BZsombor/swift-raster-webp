@@ -44,7 +44,7 @@ extension WebPImageInfo {
         bytes: Span<UInt8>
     ) throws(WebPError) -> WebPFileLayout {
         var metadata = MetadataPresence()
-        var hasAlphaChunk = false
+        var alphaPayload: Range<Int>?
         var image: BitstreamHeader?
         var imagePayload: Range<Int>?
 
@@ -54,7 +54,8 @@ extension WebPImageInfo {
                 image = try BitstreamHeader(chunk: chunk, bytes: bytes)
                 imagePayload = chunk.payload
             case .alph:
-                hasAlphaChunk = true
+                // The format allows one ALPH chunk, so later ones are ignored.
+                alphaPayload = alphaPayload ?? chunk.payload
             default:
                 metadata.record(chunk.fourCC)
             }
@@ -63,6 +64,7 @@ extension WebPImageInfo {
         guard let image else {
             throw WebPError(.missingImageData)
         }
+        let hasAlphaChunk = alphaPayload != nil
         guard image.width == canvas.width, image.height == canvas.height else {
             throw WebPError(.canvasSizeMismatch)
         }
@@ -82,7 +84,9 @@ extension WebPImageInfo {
             hasEXIF: metadata.hasEXIF,
             hasXMP: metadata.hasXMP
         )
-        return WebPFileLayout(info: info, imagePayload: imagePayload)
+        // A lossless image carries its own alpha, so an ALPH chunk next to it is ignored.
+        let lossyAlpha = image.compression == .lossy ? alphaPayload : nil
+        return WebPFileLayout(info: info, imagePayload: imagePayload, alphaPayload: lossyAlpha)
     }
 
     private static func parseAnimation(

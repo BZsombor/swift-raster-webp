@@ -68,7 +68,7 @@ let package = Package(
         ),
         .testTarget(
             name: "ConformanceTests",
-            dependencies: ["RasterWebP"],
+            dependencies: ["RasterWebP", "RasterWebPCore", "RasterWebPDecoder"],
             resources: [
                 .embedInCode("Golden/libwebp-test-data.tsv")
             ]
