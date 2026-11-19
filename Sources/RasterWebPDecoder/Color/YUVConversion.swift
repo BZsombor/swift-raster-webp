@@ -26,35 +26,118 @@ enum YUVConversion {
         into pixels: inout MutableSpan<UInt32>,
         at start: Int
     ) {
-        let hasAlpha = !alpha.isEmpty
         let lastChroma = (width &- 1) &>> 1
-        var column = 0
-        for index in 0...lastChroma {
-            let u3 = 3 &* uRow[index]
-            let v3 = 3 &* vRow[index]
-            let left = max(index &- 1, 0)
-            let right = min(index &+ 1, lastChroma)
 
-            // The even column interpolates toward the left sample, the odd one toward the right.
-            let pixelAlpha = hasAlpha ? UInt32(alpha[start &+ column]) : 255
-            pixels[start &+ column] = pixel(
-                y: Int32(luma[lumaStart &+ column]),
-                u: (u3 &+ uRow[left] &+ 8) &>> 4,
-                v: (v3 &+ vRow[left] &+ 8) &>> 4,
-                alpha: pixelAlpha
-            )
-            column &+= 1
-            if column < width {
-                let nextAlpha = hasAlpha ? UInt32(alpha[start &+ column]) : 255
-                pixels[start &+ column] = pixel(
-                    y: Int32(luma[lumaStart &+ column]),
-                    u: (u3 &+ uRow[right] &+ 8) &>> 4,
-                    v: (v3 &+ vRow[right] &+ 8) &>> 4,
-                    alpha: nextAlpha
-                )
-                column &+= 1
+        // The first chroma sample has no left neighbor, so it takes the scalar path.
+        convertPair(
+            index: 0, luma: luma, lumaStart: lumaStart, uRow: uRow, vRow: vRow,
+            width: width, alpha: alpha, into: &pixels, at: start)
+
+        // Four chroma samples give eight pixels whenever both of their neighbors exist.
+        let hasAlpha = !alpha.isEmpty
+        var index = 1
+        while index &+ 4 <= lastChroma {
+            let column = index &* 2
+            let u = interpolated(
+                uRow.loadVector(at: index, as: SIMD4<Int32>.self),
+                left: uRow.loadVector(at: index &- 1, as: SIMD4<Int32>.self),
+                right: uRow.loadVector(at: index &+ 1, as: SIMD4<Int32>.self))
+            let v = interpolated(
+                vRow.loadVector(at: index, as: SIMD4<Int32>.self),
+                left: vRow.loadVector(at: index &- 1, as: SIMD4<Int32>.self),
+                right: vRow.loadVector(at: index &+ 1, as: SIMD4<Int32>.self))
+            let y = SIMD8<Int32>(truncatingIfNeeded: luma.loadVector(at: lumaStart &+ column, as: SIMD8<UInt8>.self))
+            var pixelAlpha = SIMD8<UInt32>(repeating: 255)
+            if hasAlpha {
+                pixelAlpha = SIMD8<UInt32>(
+                    truncatingIfNeeded: alpha.loadVector(at: start &+ column, as: SIMD8<UInt8>.self))
             }
+            pixels.storeVector(pixels8(y: y, u: u, v: v, alpha: pixelAlpha), at: start &+ column)
+            index &+= 4
         }
+
+        while index <= lastChroma {
+            convertPair(
+                index: index, luma: luma, lumaStart: lumaStart, uRow: uRow, vRow: vRow,
+                width: width, alpha: alpha, into: &pixels, at: start)
+            index &+= 1
+        }
+    }
+
+    /// Converts the one or two pixels of a chroma sample, replicating the samples at the row ends.
+    @inline(always)
+    private static func convertPair(
+        index: Int,
+        luma: Span<UInt8>,
+        lumaStart: Int,
+        uRow: borrowing MutableSpan<Int32>,
+        vRow: borrowing MutableSpan<Int32>,
+        width: Int,
+        alpha: Span<UInt8>,
+        into pixels: inout MutableSpan<UInt32>,
+        at start: Int
+    ) {
+        let hasAlpha = !alpha.isEmpty
+        let u3 = 3 &* uRow[index]
+        let v3 = 3 &* vRow[index]
+        let left = max(index &- 1, 0)
+        let right = min(index &+ 1, (width &- 1) &>> 1)
+        let column = index &* 2
+
+        // The even column interpolates toward the left sample, the odd one toward the right.
+        pixels[start &+ column] = pixel(
+            y: Int32(luma[lumaStart &+ column]),
+            u: (u3 &+ uRow[left] &+ 8) &>> 4,
+            v: (v3 &+ vRow[left] &+ 8) &>> 4,
+            alpha: hasAlpha ? UInt32(alpha[start &+ column]) : 255
+        )
+        let next = column &+ 1
+        if next < width {
+            pixels[start &+ next] = pixel(
+                y: Int32(luma[lumaStart &+ next]),
+                u: (u3 &+ uRow[right] &+ 8) &>> 4,
+                v: (v3 &+ vRow[right] &+ 8) &>> 4,
+                alpha: hasAlpha ? UInt32(alpha[start &+ next]) : 255
+            )
+        }
+    }
+
+    /// Interpolates four chroma samples horizontally into eight, alternating left and right.
+    @inline(always)
+    private static func interpolated(
+        _ center: SIMD4<Int32>,
+        left: SIMD4<Int32>,
+        right: SIMD4<Int32>
+    ) -> SIMD8<Int32> {
+        let center3: SIMD4<Int32> = center &* 3
+        let even: SIMD4<Int32> = (center3 &+ left &+ 8) &>> 4
+        let odd: SIMD4<Int32> = (center3 &+ right &+ 8) &>> 4
+        return SIMD8<Int32>(even[0], odd[0], even[1], odd[1], even[2], odd[2], even[3], odd[3])
+    }
+
+    /// Converts eight YUV samples to ARGB pixels, exactly like ``pixel(y:u:v:alpha:)``.
+    @inline(always)
+    private static func pixels8(
+        y: SIMD8<Int32>,
+        u: SIMD8<Int32>,
+        v: SIMD8<Int32>,
+        alpha: SIMD8<UInt32>
+    ) -> SIMD8<UInt32> {
+        let zero = SIMD8<Int32>(repeating: 0)
+        let maximum = SIMD8<Int32>(repeating: 255)
+        let base: SIMD8<Int32> = (y &* lumaFactor) &>> 8
+        let redSum: SIMD8<Int32> = base &+ ((v &* redFromV) &>> 8) &+ redOffset
+        let greenU: SIMD8<Int32> = (u &* greenFromU) &>> 8
+        let greenV: SIMD8<Int32> = (v &* greenFromV) &>> 8
+        let greenSum: SIMD8<Int32> = base &- greenU &- greenV &+ greenOffset
+        let blueSum: SIMD8<Int32> = base &+ ((u &* blueFromU) &>> 8) &+ blueOffset
+        let red: SIMD8<Int32> = (redSum &>> 6).lanewiseClamped(zero, maximum)
+        let green: SIMD8<Int32> = (greenSum &>> 6).lanewiseClamped(zero, maximum)
+        let blue: SIMD8<Int32> = (blueSum &>> 6).lanewiseClamped(zero, maximum)
+        let redBits: SIMD8<UInt32> = SIMD8<UInt32>(truncatingIfNeeded: red) &<< 16
+        let greenBits: SIMD8<UInt32> = SIMD8<UInt32>(truncatingIfNeeded: green) &<< 8
+        let blueBits = SIMD8<UInt32>(truncatingIfNeeded: blue)
+        return (alpha &<< 24) | redBits | greenBits | blueBits
     }
 
     /// Converts one YUV sample to an ARGB pixel.

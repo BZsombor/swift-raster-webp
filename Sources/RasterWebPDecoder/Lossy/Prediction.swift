@@ -29,26 +29,25 @@ enum VP8Prediction {
         let above = origin &- stride
         switch mode {
         case .vertical:
+            let pixels = work.loadVector(at: above, as: SIMD16<UInt8>.self)
             for row in 0..<size {
-                for column in 0..<size {
-                    work[origin &+ row &* stride &+ column] = work[above &+ column]
-                }
+                storeRow(pixels, in: &work, at: origin &+ row &* stride, size: size)
             }
         case .horizontal:
             for row in 0..<size {
-                let left = work[origin &+ row &* stride &- 1]
-                for column in 0..<size {
-                    work[origin &+ row &* stride &+ column] = left
-                }
+                let target = origin &+ row &* stride
+                storeRow(SIMD16(repeating: work[target &- 1]), in: &work, at: target, size: size)
             }
         case .trueMotion:
-            let corner = Int32(work[above &- 1])
+            // Each pixel is its left neighbor plus the difference of the pixel above and the corner.
+            let corner = Int16(work[above &- 1])
+            let gradient = SIMD16<Int16>(truncatingIfNeeded: work.loadVector(at: above, as: SIMD16<UInt8>.self))
+                &- corner
             for row in 0..<size {
-                let left = Int32(work[origin &+ row &* stride &- 1]) &- corner
-                for column in 0..<size {
-                    let value = left &+ Int32(work[above &+ column])
-                    work[origin &+ row &* stride &+ column] = clamp(value)
-                }
+                let target = origin &+ row &* stride
+                let values = (gradient &+ Int16(work[target &- 1]))
+                    .lanewiseClamped(SIMD16(repeating: 0), SIMD16(repeating: 255))
+                storeRow(SIMD16<UInt8>(truncatingIfNeeded: values), in: &work, at: target, size: size)
             }
         case .dc, .subblocks:
             // Only the neighbors inside the frame contribute, section 12.2.
@@ -70,12 +69,20 @@ enum VP8Prediction {
             case (true, false), (false, true): value = (sum &+ (1 &<< (shift &- 1))) &>> shift
             case (false, false): break
             }
-            let pixel = UInt8(truncatingIfNeeded: value)
+            let pixels = SIMD16(repeating: UInt8(truncatingIfNeeded: value))
             for row in 0..<size {
-                for column in 0..<size {
-                    work[origin &+ row &* stride &+ column] = pixel
-                }
+                storeRow(pixels, in: &work, at: origin &+ row &* stride, size: size)
             }
+        }
+    }
+
+    /// Stores the first 16 or 8 pixels of `pixels` as one row of a block.
+    @inline(always)
+    private static func storeRow(_ pixels: SIMD16<UInt8>, in work: inout MutableSpan<UInt8>, at index: Int, size: Int) {
+        if size == 16 {
+            work.storeVector(pixels, at: index)
+        } else {
+            work.storeVector(pixels.lowHalf, at: index)
         }
     }
 

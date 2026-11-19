@@ -227,7 +227,7 @@ struct LossyDecoder {
         var lumaWorkStorage = [UInt8](repeating: 0, count: VP8Prediction.lumaStride * 17)
         var chromaWorkStorage = [UInt8](repeating: 0, count: VP8Prediction.chromaStride * 9 * 2)
         var scratchStorage = [Int32](repeating: 0, count: 16)
-        let probabilityStorage = header.coefficientProbabilities
+        let probabilityStorage = Self.probabilitiesByPosition(header.coefficientProbabilities)
 
         try caches.luma.withMutableElementSpan { (luma) throws(WebPError) in
             try caches.u.withMutableElementSpan { (u) throws(WebPError) in
@@ -241,29 +241,25 @@ struct LossyDecoder {
                                             try scratchStorage.withMutableElementSpan { (scratch) throws(WebPError) in
                                                 try probabilityStorage.withElementSpan {
                                                     (probabilities) throws(WebPError) in
-                                                    try VP8Constants.coefficientBands.withElementSpan {
-                                                        (bands) throws(WebPError) in
-                                                        try VP8Constants.zigzag.withElementSpan {
-                                                            (zigzag) throws(WebPError) in
-                                                            try decodeRows(
-                                                                input: input,
-                                                                luma: &luma,
-                                                                u: &u,
-                                                                v: &v,
-                                                                lumaAbove: &lumaAbove,
-                                                                uAbove: &uAbove,
-                                                                vAbove: &vAbove,
-                                                                filterInfo: &filterInfo,
-                                                                coefficients: &coefficients,
-                                                                lumaWork: &lumaWork,
-                                                                chromaWork: &chromaWork,
-                                                                scratch: &scratch,
-                                                                probabilities: probabilities,
-                                                                bands: bands,
-                                                                zigzag: zigzag,
-                                                                deliver: deliver
-                                                            )
-                                                        }
+                                                    try VP8Constants.zigzag.withElementSpan {
+                                                        (zigzag) throws(WebPError) in
+                                                        try decodeRows(
+                                                            input: input,
+                                                            luma: &luma,
+                                                            u: &u,
+                                                            v: &v,
+                                                            lumaAbove: &lumaAbove,
+                                                            uAbove: &uAbove,
+                                                            vAbove: &vAbove,
+                                                            filterInfo: &filterInfo,
+                                                            coefficients: &coefficients,
+                                                            lumaWork: &lumaWork,
+                                                            chromaWork: &chromaWork,
+                                                            scratch: &scratch,
+                                                            probabilities: probabilities,
+                                                            zigzag: zigzag,
+                                                            deliver: deliver
+                                                        )
                                                     }
                                                 }
                                             }
@@ -292,7 +288,6 @@ struct LossyDecoder {
         chromaWork: inout MutableSpan<UInt8>,
         scratch: inout MutableSpan<Int32>,
         probabilities: Span<UInt8>,
-        bands: Span<Int>,
         zigzag: Span<Int>,
         deliver: (Span<UInt8>, Span<UInt8>, Span<UInt8>, DecodedRows) -> Void
     ) throws(WebPError) {
@@ -325,7 +320,6 @@ struct LossyDecoder {
                         input: input,
                         coefficients: &coefficients,
                         probabilities: probabilities,
-                        bands: bands,
                         zigzag: zigzag
                     )
                 } else {
@@ -503,7 +497,6 @@ struct LossyDecoder {
         input: Span<UInt8>,
         coefficients: inout MutableSpan<Int16>,
         probabilities: Span<UInt8>,
-        bands: Span<Int>,
         zigzag: Span<Int>
     ) -> Bool {
         let factors = header.dequantization[segment]
@@ -520,7 +513,6 @@ struct LossyDecoder {
                 &decoder,
                 input,
                 probabilities: probabilities,
-                bands: bands,
                 zigzag: zigzag,
                 type: 1,
                 context: context,
@@ -545,7 +537,6 @@ struct LossyDecoder {
                 &decoder,
                 input,
                 probabilities: probabilities,
-                bands: bands,
                 zigzag: zigzag,
                 type: lumaType,
                 context: context,
@@ -571,7 +562,6 @@ struct LossyDecoder {
                 &decoder,
                 input,
                 probabilities: probabilities,
-                bands: bands,
                 zigzag: zigzag,
                 type: 2,
                 context: context,
@@ -595,13 +585,15 @@ struct LossyDecoder {
 
     /// Reads the tokens of one block, section 13.2, and stores the dequantized coefficients.
     ///
+    /// `probabilities` comes from ``probabilitiesByPosition(_:)``, so the 33 probabilities of a
+    /// coefficient position follow each other, and those of a context start every 11 bytes.
+    ///
     /// - Returns: Whether the block has a token before its end-of-block token.
     @inline(always)
     private static func readBlock(
         _ decoder: inout BoolDecoder,
         _ input: Span<UInt8>,
         probabilities: Span<UInt8>,
-        bands: Span<Int>,
         zigzag: Span<Int>,
         type: Int,
         context: Int,
@@ -611,42 +603,63 @@ struct LossyDecoder {
         into coefficients: inout MutableSpan<Int16>,
         at base: Int
     ) -> Bool {
-        var context = context
+        let typeBase = type &* 16 &* 33
         var position = first
-        var previousWasZero = false
+        var node = typeBase &+ position &* 33 &+ context &* 11
 
-        while position < 16 {
-            let node = ((type &* 8 &+ bands[position]) &* 3 &+ context) &* 11
-
-            // An end-of-block token cannot follow a zero.
-            if !previousWasZero, !decoder.read(UInt32(probabilities[node]), input) {
-                break
-            }
-            if !decoder.read(UInt32(probabilities[node &+ 1]), input) {
-                previousWasZero = true
-                context = 0
+        if !decoder.read(UInt32(probabilities[node]), input) {
+            return false
+        }
+        while true {
+            // A run of zero tokens, after which the context is 0 and no end-of-block can follow.
+            while !decoder.read(UInt32(probabilities[node &+ 1]), input) {
                 position &+= 1
-                continue
+                if position == 16 {
+                    return true
+                }
+                node = typeBase &+ position &* 33
             }
 
             var value: Int32
+            var nextContext: Int
             if !decoder.read(UInt32(probabilities[node &+ 2]), input) {
                 value = 1
-                context = 1
+                nextContext = 11
             } else {
                 value = readLargeToken(&decoder, input, probabilities, node)
-                context = 2
+                nextContext = 22
             }
-
             if decoder.readFlag(input) {
                 value = 0 &- value
             }
             let factor = position > 0 ? acFactor : dcFactor
             coefficients[base &+ zigzag[position]] = Int16(truncatingIfNeeded: value &* factor)
-            previousWasZero = false
+
             position &+= 1
+            if position == 16 {
+                return true
+            }
+            node = typeBase &+ position &* 33 &+ nextContext
+            if !decoder.read(UInt32(probabilities[node]), input) {
+                return true
+            }
         }
-        return position > first
+    }
+
+    /// Arranges the token probabilities by block type, coefficient position, context and tree
+    /// node, so that the token loop needs no band lookup.
+    static func probabilitiesByPosition(_ probabilities: [UInt8]) -> [UInt8] {
+        var result = [UInt8](repeating: 0, count: 4 * 16 * 33)
+        for type in 0..<4 {
+            for position in 0..<16 {
+                let source = (type * 8 + VP8Constants.coefficientBands[position]) * 33
+                let target = (type * 16 + position) * 33
+                for index in 0..<33 {
+                    result[target + index] = probabilities[source + index]
+                }
+            }
+        }
+        return result
     }
 
     /// Reads a token whose value is at least 2, after the tree's first three nodes.
@@ -742,8 +755,7 @@ struct LossyDecoder {
                         block * 16,
                         to: &work,
                         at: origin,
-                        stride: stride,
-                        scratch: &scratch
+                        stride: stride
                     )
                 }
             }
@@ -766,8 +778,7 @@ struct LossyDecoder {
                         block * 16,
                         to: &work,
                         at: origin,
-                        stride: stride,
-                        scratch: &scratch
+                        stride: stride
                     )
                 }
             }
@@ -775,9 +786,8 @@ struct LossyDecoder {
 
         let lumaTarget = lumaRow * lumaStride + column * 16
         for line in 0..<16 {
-            for x in 0..<16 {
-                luma[lumaTarget + line * lumaStride + x] = work[(line + 1) * stride + 1 + x]
-            }
+            let pixels = work.loadVector(at: (line + 1) * stride + 1, as: SIMD16<UInt8>.self)
+            luma.storeVector(pixels, at: lumaTarget + line * lumaStride)
         }
 
         let chromaStrideInWork = VP8Prediction.chromaStride
@@ -822,8 +832,7 @@ struct LossyDecoder {
                         (16 + plane * 4 + block) * 16,
                         to: &chromaWork,
                         at: blockOrigin,
-                        stride: chromaStrideInWork,
-                        scratch: &scratch
+                        stride: chromaStrideInWork
                     )
                 }
             }
@@ -831,11 +840,10 @@ struct LossyDecoder {
 
         let chromaTarget = chromaRow * chromaStride + column * 8
         for line in 0..<8 {
-            for x in 0..<8 {
-                u[chromaTarget + line * chromaStride + x] = chromaWork[(line + 1) * chromaStrideInWork + 1 + x]
-                v[chromaTarget + line * chromaStride + x] =
-                    chromaWork[planeSize + (line + 1) * chromaStrideInWork + 1 + x]
-            }
+            let source = (line + 1) * chromaStrideInWork + 1
+            let target = chromaTarget + line * chromaStride
+            u.storeVector(chromaWork.loadVector(at: source, as: SIMD8<UInt8>.self), at: target)
+            v.storeVector(chromaWork.loadVector(at: planeSize + source, as: SIMD8<UInt8>.self), at: target)
         }
     }
 
@@ -846,18 +854,10 @@ struct LossyDecoder {
         _ source: Int,
         to work: inout MutableSpan<UInt8>,
         at origin: Int,
-        stride: Int,
-        scratch: inout MutableSpan<Int32>
+        stride: Int
     ) {
         if VP8Transforms.hasACCoefficients(coefficients.span, source: source) {
-            VP8Transforms.addInverseDCT(
-                coefficients.span,
-                source: source,
-                to: &work,
-                at: origin,
-                stride: stride,
-                scratch: &scratch
-            )
+            VP8Transforms.addInverseDCT(coefficients.span, source: source, to: &work, at: origin, stride: stride)
         } else if coefficients[source] != 0 {
             VP8Transforms.addInverseDC(coefficients.span, source: source, to: &work, at: origin, stride: stride)
         }
@@ -967,45 +967,37 @@ struct LossyDecoder {
 
                 if simple {
                     if column > 0 {
-                        VP8LoopFilter.simpleEdge(
+                        VP8LoopFilter.simpleVerticalEdge(
                             &luma,
                             start: lumaOrigin,
-                            step: 1,
-                            along: lumaStride,
-                            count: 16,
+                            stride: lumaStride,
                             edgeLimit: macroblockLimit
                         )
                     }
                     if filtersInnerEdges {
                         for offset in Swift.stride(from: 4, through: 12, by: 4) {
-                            VP8LoopFilter.simpleEdge(
+                            VP8LoopFilter.simpleVerticalEdge(
                                 &luma,
                                 start: lumaOrigin + offset,
-                                step: 1,
-                                along: lumaStride,
-                                count: 16,
+                                stride: lumaStride,
                                 edgeLimit: subblockLimit
                             )
                         }
                     }
                     if row > 0 {
-                        VP8LoopFilter.simpleEdge(
+                        VP8LoopFilter.simpleHorizontalEdge(
                             &luma,
                             start: lumaOrigin,
-                            step: lumaStride,
-                            along: 1,
-                            count: 16,
+                            stride: lumaStride,
                             edgeLimit: macroblockLimit
                         )
                     }
                     if filtersInnerEdges {
                         for offset in Swift.stride(from: 4, through: 12, by: 4) {
-                            VP8LoopFilter.simpleEdge(
+                            VP8LoopFilter.simpleHorizontalEdge(
                                 &luma,
                                 start: lumaOrigin + offset * lumaStride,
-                                step: lumaStride,
-                                along: 1,
-                                count: 16,
+                                stride: lumaStride,
                                 edgeLimit: subblockLimit
                             )
                         }
@@ -1014,123 +1006,83 @@ struct LossyDecoder {
                 }
 
                 if column > 0 {
-                    VP8LoopFilter.macroblockEdge(
+                    VP8LoopFilter.normalVerticalEdge(
                         &luma,
                         start: lumaOrigin,
-                        step: 1,
-                        along: lumaStride,
-                        count: 16,
+                        stride: lumaStride,
                         strength: strength,
-                        edgeLimit: macroblockLimit
+                        edgeLimit: macroblockLimit,
+                        isMacroblockEdge: true
                     )
-                    VP8LoopFilter.macroblockEdge(
-                        &u,
+                    VP8LoopFilter.normalVerticalEdge(
+                        u: &u,
+                        v: &v,
                         start: chromaOrigin,
-                        step: 1,
-                        along: chromaStride,
-                        count: 8,
+                        stride: chromaStride,
                         strength: strength,
-                        edgeLimit: macroblockLimit
-                    )
-                    VP8LoopFilter.macroblockEdge(
-                        &v,
-                        start: chromaOrigin,
-                        step: 1,
-                        along: chromaStride,
-                        count: 8,
-                        strength: strength,
-                        edgeLimit: macroblockLimit
+                        edgeLimit: macroblockLimit,
+                        isMacroblockEdge: true
                     )
                 }
                 if filtersInnerEdges {
                     for offset in Swift.stride(from: 4, through: 12, by: 4) {
-                        VP8LoopFilter.subblockEdge(
+                        VP8LoopFilter.normalVerticalEdge(
                             &luma,
                             start: lumaOrigin + offset,
-                            step: 1,
-                            along: lumaStride,
-                            count: 16,
+                            stride: lumaStride,
                             strength: strength,
-                            edgeLimit: subblockLimit
+                            edgeLimit: subblockLimit,
+                            isMacroblockEdge: false
                         )
                     }
-                    VP8LoopFilter.subblockEdge(
-                        &u,
+                    VP8LoopFilter.normalVerticalEdge(
+                        u: &u,
+                        v: &v,
                         start: chromaOrigin + 4,
-                        step: 1,
-                        along: chromaStride,
-                        count: 8,
+                        stride: chromaStride,
                         strength: strength,
-                        edgeLimit: subblockLimit
-                    )
-                    VP8LoopFilter.subblockEdge(
-                        &v,
-                        start: chromaOrigin + 4,
-                        step: 1,
-                        along: chromaStride,
-                        count: 8,
-                        strength: strength,
-                        edgeLimit: subblockLimit
+                        edgeLimit: subblockLimit,
+                        isMacroblockEdge: false
                     )
                 }
                 if row > 0 {
-                    VP8LoopFilter.macroblockEdge(
+                    VP8LoopFilter.normalHorizontalEdge(
                         &luma,
                         start: lumaOrigin,
-                        step: lumaStride,
-                        along: 1,
-                        count: 16,
+                        stride: lumaStride,
                         strength: strength,
-                        edgeLimit: macroblockLimit
+                        edgeLimit: macroblockLimit,
+                        isMacroblockEdge: true
                     )
-                    VP8LoopFilter.macroblockEdge(
-                        &u,
+                    VP8LoopFilter.normalHorizontalEdge(
+                        u: &u,
+                        v: &v,
                         start: chromaOrigin,
-                        step: chromaStride,
-                        along: 1,
-                        count: 8,
+                        stride: chromaStride,
                         strength: strength,
-                        edgeLimit: macroblockLimit
-                    )
-                    VP8LoopFilter.macroblockEdge(
-                        &v,
-                        start: chromaOrigin,
-                        step: chromaStride,
-                        along: 1,
-                        count: 8,
-                        strength: strength,
-                        edgeLimit: macroblockLimit
+                        edgeLimit: macroblockLimit,
+                        isMacroblockEdge: true
                     )
                 }
                 if filtersInnerEdges {
                     for offset in Swift.stride(from: 4, through: 12, by: 4) {
-                        VP8LoopFilter.subblockEdge(
+                        VP8LoopFilter.normalHorizontalEdge(
                             &luma,
                             start: lumaOrigin + offset * lumaStride,
-                            step: lumaStride,
-                            along: 1,
-                            count: 16,
+                            stride: lumaStride,
                             strength: strength,
-                            edgeLimit: subblockLimit
+                            edgeLimit: subblockLimit,
+                            isMacroblockEdge: false
                         )
                     }
-                    VP8LoopFilter.subblockEdge(
-                        &u,
+                    VP8LoopFilter.normalHorizontalEdge(
+                        u: &u,
+                        v: &v,
                         start: chromaOrigin + 4 * chromaStride,
-                        step: chromaStride,
-                        along: 1,
-                        count: 8,
+                        stride: chromaStride,
                         strength: strength,
-                        edgeLimit: subblockLimit
-                    )
-                    VP8LoopFilter.subblockEdge(
-                        &v,
-                        start: chromaOrigin + 4 * chromaStride,
-                        step: chromaStride,
-                        along: 1,
-                        count: 8,
-                        strength: strength,
-                        edgeLimit: subblockLimit
+                        edgeLimit: subblockLimit,
+                        isMacroblockEdge: false
                     )
                 }
             }
