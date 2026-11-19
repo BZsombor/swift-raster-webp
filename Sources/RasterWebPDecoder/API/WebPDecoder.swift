@@ -209,14 +209,17 @@ extension WebPDecoder {
         budget: inout MemoryBudget,
         into pixels: inout MutableSpan<UInt32>
     ) throws(WebPError) {
-        var alpha: [UInt8] = []
+        // The alpha plane goes straight into the top byte of the output pixels, and the color
+        // conversion keeps it there.
+        let hasAlpha = source.alphaPayload != nil
         if let alphaPayload = source.alphaPayload {
-            alpha = try AlphaDecoder.decode(
+            try AlphaDecoder.decode(
                 input: bytes,
                 payload: alphaPayload,
                 width: source.width,
                 height: source.height,
-                budget: &budget
+                budget: budget,
+                into: &pixels
             )
         }
 
@@ -228,9 +231,7 @@ extension WebPDecoder {
             height: source.height,
             budget: &budget
         ) { luma, u, v, rows in
-            alpha.withElementSpan { alpha in
-                converter.convert(luma: luma, u: u, v: v, rows: rows, alpha: alpha, into: &pixels)
-            }
+            converter.convert(luma: luma, u: u, v: v, rows: rows, hasAlpha: hasAlpha, into: &pixels)
         }
     }
 }

@@ -188,15 +188,17 @@ extension VP8LoopFilter {
         let interior = absoluteDifference(lanes.p3, p2).lanewiseMaximum(absoluteDifference(p2, p1))
             .lanewiseMaximum(absoluteDifference(lanes.q3, q2).lanewiseMaximum(absoluteDifference(q2, q1)))
             .lanewiseMaximum(p1p0.lanewiseMaximum(q1q0))
-        let mask = ~(
-            greater(edgeDifference(p1, p0, q0, q1), Lanes(repeating: Int16(edgeLimit)))
-                | greater(interior, Lanes(repeating: Int16(strength.interiorLimit))))
+        let mask =
+            ~(greater(edgeDifference(p1, p0, q0, q1), Lanes(repeating: Int16(edgeLimit)))
+            | greater(interior, Lanes(repeating: Int16(strength.interiorLimit))))
         guard isAnySet(mask) else {
             return false
         }
 
         let highVariance = greater(
-            p1p0.lanewiseMaximum(q1q0), Lanes(repeating: Int16(strength.highEdgeVarianceThreshold)))
+            p1p0.lanewiseMaximum(q1q0),
+            Lanes(repeating: Int16(strength.highEdgeVarianceThreshold))
+        )
         let lowVariance = mask & ~highVariance
         let outerTaps = clampSigned(p1 &- q1)
         let inner = 3 &* (q0 &- p0)
@@ -320,8 +322,14 @@ extension VP8LoopFilter {
     /// position. Result `m` holds the positions `m`, `m + 8`, `m + 16`, and so on.
     @inline(always)
     private static func groupByEight(
-        _ x0: Bytes, _ x1: Bytes, _ x2: Bytes, _ x3: Bytes,
-        _ x4: Bytes, _ x5: Bytes, _ x6: Bytes, _ x7: Bytes
+        _ x0: Bytes,
+        _ x1: Bytes,
+        _ x2: Bytes,
+        _ x3: Bytes,
+        _ x4: Bytes,
+        _ x5: Bytes,
+        _ x6: Bytes,
+        _ x7: Bytes
     ) -> (Bytes, Bytes, Bytes, Bytes, Bytes, Bytes, Bytes, Bytes) {
         let a0 = split(x0, x1), a1 = split(x2, x3), a2 = split(x4, x5), a3 = split(x6, x7)
         let b0 = split(a0.even, a1.even), b1 = split(a2.even, a3.even)
@@ -335,8 +343,14 @@ extension VP8LoopFilter {
     /// Turns 16 rows of 8 bytes, two rows per vector, into the 8 columns of the segments.
     @inline(always)
     private static func columns(
-        _ x0: Bytes, _ x1: Bytes, _ x2: Bytes, _ x3: Bytes,
-        _ x4: Bytes, _ x5: Bytes, _ x6: Bytes, _ x7: Bytes
+        _ x0: Bytes,
+        _ x1: Bytes,
+        _ x2: Bytes,
+        _ x3: Bytes,
+        _ x4: Bytes,
+        _ x5: Bytes,
+        _ x6: Bytes,
+        _ x7: Bytes
     ) -> EdgeLanes {
         // Byte `c` of row `r` sits at position 8r + c, so grouping by position modulo 8 gives columns.
         let c = groupByEight(x0, x1, x2, x3, x4, x5, x6, x7)
@@ -360,10 +374,15 @@ extension VP8LoopFilter {
     ) -> (Bytes, Bytes, Bytes, Bytes, Bytes, Bytes, Bytes, Bytes) {
         // Row `r` of column `c` sits at position 16c + r, and 16c is a multiple of 8.
         groupByEight(
-            Bytes(truncatingIfNeeded: lanes.p3), Bytes(truncatingIfNeeded: lanes.p2),
-            Bytes(truncatingIfNeeded: lanes.p1), Bytes(truncatingIfNeeded: lanes.p0),
-            Bytes(truncatingIfNeeded: lanes.q0), Bytes(truncatingIfNeeded: lanes.q1),
-            Bytes(truncatingIfNeeded: lanes.q2), Bytes(truncatingIfNeeded: lanes.q3))
+            Bytes(truncatingIfNeeded: lanes.p3),
+            Bytes(truncatingIfNeeded: lanes.p2),
+            Bytes(truncatingIfNeeded: lanes.p1),
+            Bytes(truncatingIfNeeded: lanes.p0),
+            Bytes(truncatingIfNeeded: lanes.q0),
+            Bytes(truncatingIfNeeded: lanes.q1),
+            Bytes(truncatingIfNeeded: lanes.q2),
+            Bytes(truncatingIfNeeded: lanes.q3)
+        )
     }
 
     /// Loads 16 luma segments across a vertical edge.

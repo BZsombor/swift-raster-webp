@@ -18,7 +18,9 @@ struct LoopFilterTests {
         let interiorLimit = Int32(1 + generator.next(below: 9))
         let threshold = Int32(generator.next(below: 3))
         let edgeLimit = kind == .macroblock ? (level + 2) * 2 + interiorLimit : level * 2 + interiorLimit
-        return (FilterStrength(level: level, interiorLimit: interiorLimit, highEdgeVarianceThreshold: threshold), edgeLimit)
+        return (
+            FilterStrength(level: level, interiorLimit: interiorLimit, highEdgeVarianceThreshold: threshold), edgeLimit
+        )
     }
 
     /// A plane that is smooth on each side of an edge, so that every filter branch is reached.
@@ -53,15 +55,33 @@ struct LoopFilterTests {
             switch kind {
             case .simple:
                 VP8LoopFilter.simpleEdge(
-                    &span, start: start, step: step, along: along, count: count, edgeLimit: edgeLimit)
+                    &span,
+                    start: start,
+                    step: step,
+                    along: along,
+                    count: count,
+                    edgeLimit: edgeLimit
+                )
             case .subblock:
                 VP8LoopFilter.subblockEdge(
-                    &span, start: start, step: step, along: along, count: count, strength: strength,
-                    edgeLimit: edgeLimit)
+                    &span,
+                    start: start,
+                    step: step,
+                    along: along,
+                    count: count,
+                    strength: strength,
+                    edgeLimit: edgeLimit
+                )
             case .macroblock:
                 VP8LoopFilter.macroblockEdge(
-                    &span, start: start, step: step, along: along, count: count, strength: strength,
-                    edgeLimit: edgeLimit)
+                    &span,
+                    start: start,
+                    step: step,
+                    along: along,
+                    count: count,
+                    strength: strength,
+                    edgeLimit: edgeLimit
+                )
             }
         }
     }
@@ -80,8 +100,15 @@ struct LoopFilterTests {
 
                 var expected = original
                 Self.scalar(
-                    &expected, kind: kind, start: start, step: isVertical ? 1 : stride,
-                    along: isVertical ? stride : 1, count: 16, strength: strength, edgeLimit: edgeLimit)
+                    &expected,
+                    kind: kind,
+                    start: start,
+                    step: isVertical ? 1 : stride,
+                    along: isVertical ? stride : 1,
+                    count: 16,
+                    strength: strength,
+                    edgeLimit: edgeLimit
+                )
 
                 var actual = original
                 actual.withMutableElementSpan { span in
@@ -92,12 +119,22 @@ struct LoopFilterTests {
                         VP8LoopFilter.simpleHorizontalEdge(&span, start: start, stride: stride, edgeLimit: edgeLimit)
                     case (_, true):
                         VP8LoopFilter.normalVerticalEdge(
-                            &span, start: start, stride: stride, strength: strength, edgeLimit: edgeLimit,
-                            isMacroblockEdge: kind == .macroblock)
+                            &span,
+                            start: start,
+                            stride: stride,
+                            strength: strength,
+                            edgeLimit: edgeLimit,
+                            isMacroblockEdge: kind == .macroblock
+                        )
                     case (_, false):
                         VP8LoopFilter.normalHorizontalEdge(
-                            &span, start: start, stride: stride, strength: strength, edgeLimit: edgeLimit,
-                            isMacroblockEdge: kind == .macroblock)
+                            &span,
+                            start: start,
+                            stride: stride,
+                            strength: strength,
+                            edgeLimit: edgeLimit,
+                            isMacroblockEdge: kind == .macroblock
+                        )
                     }
                 }
 
@@ -130,11 +167,25 @@ struct LoopFilterTests {
                 let step = isVertical ? 1 : stride
                 let along = isVertical ? stride : 1
                 Self.scalar(
-                    &expectedU, kind: kind, start: start, step: step, along: along, count: 8,
-                    strength: strength, edgeLimit: edgeLimit)
+                    &expectedU,
+                    kind: kind,
+                    start: start,
+                    step: step,
+                    along: along,
+                    count: 8,
+                    strength: strength,
+                    edgeLimit: edgeLimit
+                )
                 Self.scalar(
-                    &expectedV, kind: kind, start: start, step: step, along: along, count: 8,
-                    strength: strength, edgeLimit: edgeLimit)
+                    &expectedV,
+                    kind: kind,
+                    start: start,
+                    step: step,
+                    along: along,
+                    count: 8,
+                    strength: strength,
+                    edgeLimit: edgeLimit
+                )
 
                 var actualU = originalU
                 var actualV = originalV
@@ -142,12 +193,24 @@ struct LoopFilterTests {
                     actualV.withMutableElementSpan { v in
                         if isVertical {
                             VP8LoopFilter.normalVerticalEdge(
-                                u: &u, v: &v, start: start, stride: stride, strength: strength,
-                                edgeLimit: edgeLimit, isMacroblockEdge: kind == .macroblock)
+                                u: &u,
+                                v: &v,
+                                start: start,
+                                stride: stride,
+                                strength: strength,
+                                edgeLimit: edgeLimit,
+                                isMacroblockEdge: kind == .macroblock
+                            )
                         } else {
                             VP8LoopFilter.normalHorizontalEdge(
-                                u: &u, v: &v, start: start, stride: stride, strength: strength,
-                                edgeLimit: edgeLimit, isMacroblockEdge: kind == .macroblock)
+                                u: &u,
+                                v: &v,
+                                start: start,
+                                stride: stride,
+                                strength: strength,
+                                edgeLimit: edgeLimit,
+                                isMacroblockEdge: kind == .macroblock
+                            )
                         }
                     }
                 }

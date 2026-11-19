@@ -15,6 +15,9 @@ enum YUVConversion {
     private static var blueOffset: Int32 { -17685 }
 
     /// Converts one row, interpolating the vertically blended chroma rows horizontally.
+    ///
+    /// - Parameter hasAlpha: Whether `pixels` already holds the alpha values in its top byte.
+    ///   Otherwise every pixel becomes opaque.
     @inline(always)
     static func convertRow(
         luma: Span<UInt8>,
@@ -22,7 +25,7 @@ enum YUVConversion {
         uRow: borrowing MutableSpan<Int32>,
         vRow: borrowing MutableSpan<Int32>,
         width: Int,
-        alpha: Span<UInt8>,
+        hasAlpha: Bool,
         into pixels: inout MutableSpan<UInt32>,
         at start: Int
     ) {
@@ -30,27 +33,35 @@ enum YUVConversion {
 
         // The first chroma sample has no left neighbor, so it takes the scalar path.
         convertPair(
-            index: 0, luma: luma, lumaStart: lumaStart, uRow: uRow, vRow: vRow,
-            width: width, alpha: alpha, into: &pixels, at: start)
+            index: 0,
+            luma: luma,
+            lumaStart: lumaStart,
+            uRow: uRow,
+            vRow: vRow,
+            width: width,
+            hasAlpha: hasAlpha,
+            into: &pixels,
+            at: start
+        )
 
         // Four chroma samples give eight pixels whenever both of their neighbors exist.
-        let hasAlpha = !alpha.isEmpty
         var index = 1
         while index &+ 4 <= lastChroma {
             let column = index &* 2
             let u = interpolated(
                 uRow.loadVector(at: index, as: SIMD4<Int32>.self),
                 left: uRow.loadVector(at: index &- 1, as: SIMD4<Int32>.self),
-                right: uRow.loadVector(at: index &+ 1, as: SIMD4<Int32>.self))
+                right: uRow.loadVector(at: index &+ 1, as: SIMD4<Int32>.self)
+            )
             let v = interpolated(
                 vRow.loadVector(at: index, as: SIMD4<Int32>.self),
                 left: vRow.loadVector(at: index &- 1, as: SIMD4<Int32>.self),
-                right: vRow.loadVector(at: index &+ 1, as: SIMD4<Int32>.self))
+                right: vRow.loadVector(at: index &+ 1, as: SIMD4<Int32>.self)
+            )
             let y = SIMD8<Int32>(truncatingIfNeeded: luma.loadVector(at: lumaStart &+ column, as: SIMD8<UInt8>.self))
             var pixelAlpha = SIMD8<UInt32>(repeating: 255)
             if hasAlpha {
-                pixelAlpha = SIMD8<UInt32>(
-                    truncatingIfNeeded: alpha.loadVector(at: start &+ column, as: SIMD8<UInt8>.self))
+                pixelAlpha = pixels.loadVector(at: start &+ column, as: SIMD8<UInt32>.self) &>> 24
             }
             pixels.storeVector(pixels8(y: y, u: u, v: v, alpha: pixelAlpha), at: start &+ column)
             index &+= 4
@@ -58,8 +69,16 @@ enum YUVConversion {
 
         while index <= lastChroma {
             convertPair(
-                index: index, luma: luma, lumaStart: lumaStart, uRow: uRow, vRow: vRow,
-                width: width, alpha: alpha, into: &pixels, at: start)
+                index: index,
+                luma: luma,
+                lumaStart: lumaStart,
+                uRow: uRow,
+                vRow: vRow,
+                width: width,
+                hasAlpha: hasAlpha,
+                into: &pixels,
+                at: start
+            )
             index &+= 1
         }
     }
@@ -73,11 +92,10 @@ enum YUVConversion {
         uRow: borrowing MutableSpan<Int32>,
         vRow: borrowing MutableSpan<Int32>,
         width: Int,
-        alpha: Span<UInt8>,
+        hasAlpha: Bool,
         into pixels: inout MutableSpan<UInt32>,
         at start: Int
     ) {
-        let hasAlpha = !alpha.isEmpty
         let u3 = 3 &* uRow[index]
         let v3 = 3 &* vRow[index]
         let left = max(index &- 1, 0)
@@ -89,7 +107,7 @@ enum YUVConversion {
             y: Int32(luma[lumaStart &+ column]),
             u: (u3 &+ uRow[left] &+ 8) &>> 4,
             v: (v3 &+ vRow[left] &+ 8) &>> 4,
-            alpha: hasAlpha ? UInt32(alpha[start &+ column]) : 255
+            alpha: hasAlpha ? pixels[start &+ column] &>> 24 : 255
         )
         let next = column &+ 1
         if next < width {
@@ -97,7 +115,7 @@ enum YUVConversion {
                 y: Int32(luma[lumaStart &+ next]),
                 u: (u3 &+ uRow[right] &+ 8) &>> 4,
                 v: (v3 &+ vRow[right] &+ 8) &>> 4,
-                alpha: hasAlpha ? UInt32(alpha[start &+ next]) : 255
+                alpha: hasAlpha ? pixels[start &+ next] &>> 24 : 255
             )
         }
     }
@@ -188,13 +206,14 @@ struct YUVRowConverter {
 
     /// Converts the rows of one batch into `pixels`, which holds the whole image.
     ///
-    /// - Parameter alpha: One alpha value per pixel of the image, or an empty span.
+    /// - Parameter hasAlpha: Whether `pixels` already holds the alpha plane in the top byte of
+    ///   each pixel, which the conversion keeps.
     mutating func convert(
         luma: Span<UInt8>,
         u: Span<UInt8>,
         v: Span<UInt8>,
         rows: DecodedRows,
-        alpha: Span<UInt8>,
+        hasAlpha: Bool,
         into pixels: inout MutableSpan<UInt32>
     ) {
         var uStorage: [Int32] = []
@@ -225,7 +244,7 @@ struct YUVRowConverter {
                                 u: u,
                                 v: v,
                                 rows: rows,
-                                alpha: alpha,
+                                hasAlpha: hasAlpha,
                                 into: &pixels,
                                 uRow: &uRow,
                                 vRow: &vRow,
@@ -245,7 +264,7 @@ struct YUVRowConverter {
         u: Span<UInt8>,
         v: Span<UInt8>,
         rows: DecodedRows,
-        alpha: Span<UInt8>,
+        hasAlpha: Bool,
         into pixels: inout MutableSpan<UInt32>,
         uRow: inout MutableSpan<Int32>,
         vRow: inout MutableSpan<Int32>,
@@ -272,7 +291,7 @@ struct YUVRowConverter {
                 uRow: uRow,
                 vRow: vRow,
                 width: width,
-                alpha: alpha,
+                hasAlpha: hasAlpha,
                 into: &pixels,
                 at: deferredRow &* width
             )
@@ -315,7 +334,7 @@ struct YUVRowConverter {
                 uRow: uRow,
                 vRow: vRow,
                 width: width,
-                alpha: alpha,
+                hasAlpha: hasAlpha,
                 into: &pixels,
                 at: row &* width
             )

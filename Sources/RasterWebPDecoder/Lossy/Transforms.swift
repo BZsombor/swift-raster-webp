@@ -57,7 +57,8 @@ enum VP8Transforms {
             Quad(truncatingIfNeeded: coefficients.loadVector(at: source, as: SIMD4<Int16>.self)),
             Quad(truncatingIfNeeded: coefficients.loadVector(at: source &+ 4, as: SIMD4<Int16>.self)),
             Quad(truncatingIfNeeded: coefficients.loadVector(at: source &+ 8, as: SIMD4<Int16>.self)),
-            Quad(truncatingIfNeeded: coefficients.loadVector(at: source &+ 12, as: SIMD4<Int16>.self)))
+            Quad(truncatingIfNeeded: coefficients.loadVector(at: source &+ 12, as: SIMD4<Int16>.self))
+        )
         let rows = transpose(wrapped(first.0), wrapped(first.1), wrapped(first.2), wrapped(first.3))
 
         // The second pass transforms each row, so lane `i` holds row `i`.
@@ -67,7 +68,8 @@ enum VP8Transforms {
             wrapped((second.0 &+ rounding) &>> 3),
             wrapped((second.1 &+ rounding) &>> 3),
             wrapped((second.2 &+ rounding) &>> 3),
-            wrapped((second.3 &+ rounding) &>> 3))
+            wrapped((second.3 &+ rounding) &>> 3)
+        )
 
         add(residuals.0, to: &pixels, at: origin)
         add(residuals.1, to: &pixels, at: origin &+ stride)

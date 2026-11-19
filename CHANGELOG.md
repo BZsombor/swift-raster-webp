@@ -10,6 +10,8 @@ All notable changes to this project are documented in this file. The format is b
 - RGBA, BGRA, RGB and BGR output, with straight or premultiplied alpha.
 - Decoding into caller-provided memory.
 - Pixel and memory limits for untrusted files.
+- Lossy (VP8) image decoding, bit-exact with libwebp's `dwebp`, including segments, both loop filters and multiple token partitions.
+- Transparency in lossy images, from raw and lossless-compressed `ALPH` chunks with every filter.
 
 ## [0.1.0] - 2026-11-18
 

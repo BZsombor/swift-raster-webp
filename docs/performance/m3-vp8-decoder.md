@@ -11,6 +11,17 @@ Measured on an Apple M5 with Swift 6.4.2, on one thread, in a release build. The
 
 The milestone target was 50% of libwebp. All memory access is bounds-checked, and the vector code uses only the standard library's portable SIMD types, without platform intrinsics.
 
+## Size and memory
+
+| Metric | Result | Target |
+|---|---:|---:|
+| Binary size added by the container parser and both decoders (Linux aarch64, static, stripped) | 200 KB | at most 400 KB |
+| Peak memory footprint of the measuring tool for the 24.1 Mpx image | 107 MB | |
+| The same image with an alpha channel | 107 MB | |
+| Input file plus decoded RGBA pixels of that image | 100 MB | |
+
+The binary size is the difference between two statically linked, stripped programs built with Swift 6.3: one that only prints its argument count, and one that decodes an image. The decoder works through the image one macroblock row at a time, and the alpha plane is decoded straight into the output pixels, so the working memory grows with the image width, not with its area.
+
 ## libwebp without its SIMD code
 
 To see how much of libwebp's speed comes from its hand-written SIMD code, `dwebp` was also built from the libwebp sources with NEON disabled. Its timings below come from `dwebp -v`, so they differ slightly from the table above.
