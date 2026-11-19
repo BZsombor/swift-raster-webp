@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [container, decoder, vp8l]
+        target: [container, decoder, vp8l, vp8]
     env:
       FUZZ_WORK: ${{ github.workspace }}/.fuzz
     steps:

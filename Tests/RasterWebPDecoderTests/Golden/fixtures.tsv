@@ -2,6 +2,17 @@
 extended.webp	ok	64	48	lossless	false	false	5cd1a8ee237b2425	-
 gradient.webp	ok	64	48	lossless	false	false	5cd1a8ee237b2425	-
 gradient_alpha.webp	ok	64	48	lossless	true	false	1c8c2d516b948fa5	-
+lossy_alpha_gradient.webp	ok	40	24	lossy	true	false	2098aed751f548da	462c0507ea638d8d
+lossy_alpha_horizontal.webp	ok	40	24	lossy	true	false	713b9d47755b1591	42d44ae1451f4fa4
+lossy_alpha_quantized.webp	ok	40	24	lossy	true	false	60a1eebc2906ed81	42d44ae1451f4fa4
+lossy_alpha_raw.webp	ok	40	24	lossy	true	false	713b9d47755b1591	42d44ae1451f4fa4
+lossy_alpha_unfiltered.webp	ok	40	24	lossy	true	false	713b9d47755b1591	42d44ae1451f4fa4
+lossy_alpha_vertical.webp	ok	40	24	lossy	true	false	b9b0836b1890b081	38dfe5d95c3958e0
+lossy_no_filter.webp	ok	48	40	lossy	false	false	efcc6a04a5304b13	8fe2eec82fe48b60
+lossy_odd_size.webp	ok	33	17	lossy	false	false	8ece6717d79bb8ca	d99c3b76263c8772
+lossy_q75.webp	ok	48	40	lossy	false	false	15804d980af70b68	309b1d6a391ce51f
+lossy_q95_sharpness.webp	ok	48	40	lossy	false	false	65cab50674a9d752	44bbaf99151d8e63
+lossy_simple_filter.webp	ok	48	40	lossy	false	false	ae0886f566bebc0d	e4530428389b91d1
 mixed.webp	ok	256	256	lossless	true	false	8407c8450e244434	-
 near_lossless.webp	ok	96	96	lossless	true	false	40b2a4c663678584	-
 noise.webp	ok	48	48	lossless	true	false	1e33f086d2fffb5f	-

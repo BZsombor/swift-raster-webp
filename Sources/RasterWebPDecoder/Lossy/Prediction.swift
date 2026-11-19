@@ -41,7 +41,8 @@ enum VP8Prediction {
         case .trueMotion:
             // Each pixel is its left neighbor plus the difference of the pixel above and the corner.
             let corner = Int16(work[above &- 1])
-            let gradient = SIMD16<Int16>(truncatingIfNeeded: work.loadVector(at: above, as: SIMD16<UInt8>.self))
+            let gradient =
+                SIMD16<Int16>(truncatingIfNeeded: work.loadVector(at: above, as: SIMD16<UInt8>.self))
                 &- corner
             for row in 0..<size {
                 let target = origin &+ row &* stride

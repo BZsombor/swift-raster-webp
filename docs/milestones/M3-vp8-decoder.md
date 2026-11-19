@@ -4,7 +4,7 @@
 |---|---|
 | **Cél** | Veszteséges WebP-képek dekódolása tiszta Swiftben, átlátszósággal együtt |
 | **Kiadás** | 0.3.0 |
-| **Állapot** | Elfogadva 2026-11-19-én, a kódolás még nem kezdődött el |
+| **Állapot** | Elkészült az `m3-vp8-decoder` ágon. A `main`-be pull requesttel kerül, a CI-futás után |
 | **Normatív források** | RFC 6386 (VP8), RFC 9649 2.7.1.2 (ALPH) |
 | **Alapszabály** | A kód a szabványból készül, más könyvtárakból nem veszünk át kódot ([ADR 0003](../adr/0003-implementation-sources.md)) |
 
@@ -27,15 +27,15 @@ Ez a projekt legnagyobb mérföldköve. A VP8 kulcskép-dekódolása körülbel�
 
 ## 2. Kész-feltételek
 
-- [ ] A libwebp-készlet mind a 88 veszteséges fájlja pixelre egyezik a `dwebp` kimenetével, a 18 alfás is.
-- [ ] Az 56 `vp80` tesztvektor YUV-síkjai bitre egyeznek a `dwebp -yuv` kimenetével.
-- [ ] A véletlen paraméterekkel készített `cwebp`-fájlok pixelre egyeznek a `dwebp` kimenetével.
-- [ ] Minden hibás bemenetre hibát ad vagy érvényes képet, összeomlás nélkül.
-- [ ] A fuzzerek, köztük egy új, VP8-ra szabott fuzzer, a teszt ideje alatt nem találnak hibát.
-- [ ] Az ASan és TSan futások tiszták.
-- [ ] A sebesség eléri a libwebp 50%-át: q75-ön legalább 75 Mpx/s, q90-en legalább 50 Mpx/s.
-- [ ] A munkamemória a képszélességgel arányos, nem a képterülettel.
-- [ ] A dekóder teljes mérete a 400 KB-os kereten belül marad.
+- [x] A libwebp-készlet mind a 88 veszteséges fájlja pixelre egyezik a `dwebp` kimenetével, a 18 alfás is.
+- [x] Az 56 `vp80` tesztvektor YUV-síkjai bitre egyeznek a `dwebp -yuv` kimenetével. *(Mind a 88 veszteséges fájlé egyezik.)*
+- [x] A véletlen paraméterekkel készített `cwebp`-fájlok pixelre egyeznek a `dwebp` kimenetével. *(4400 kép, ebből kb. 2200 veszteséges, 0 eltérés.)*
+- [x] Minden hibás bemenetre hibát ad vagy érvényes képet, összeomlás nélkül.
+- [x] A fuzzerek, köztük egy új, VP8-ra szabott fuzzer, a teszt ideje alatt nem találnak hibát.
+- [x] Az ASan és TSan futások tiszták.
+- [x] A sebesség eléri a libwebp 50%-át: q75-ön legalább 75 Mpx/s, q90-en legalább 50 Mpx/s. *(Mért érték: 104 és 75 Mpx/s, a libwebp 71 és 78%-a.)*
+- [x] A munkamemória a képszélességgel arányos, nem a képterülettel. *(Egy 24 Mpx-es képnél kb. 7 MB, alfával is.)*
+- [x] A dekóder teljes mérete a 400 KB-os kereten belül marad. *(Mért érték: 200 KB a konténerrel együtt.)*
 - [ ] A CI minden platformon zöld.
 
 ## 3. Források és jogi háttér
@@ -55,6 +55,7 @@ Egyik RFC sem írja elő, hogyan lesz a YUV-ból RGB, és hogyan nő a fél felb
 - **Színkonverzió:** a BT.601 szabvány együtthatóiból, fixpontos aritmetikával számolunk. A pontosságot úgy választjuk meg, hogy az eredmény bitre egyezzen a `dwebp`-vel, és ezt a tesztek ellenőrzik.
 - **Felskálázás:** a széles körben használt bilineáris „fancy” felskálázás, amely a `dwebp` alapértelmezése is.
 - **Ez az ADR 0003 kompatibilitási szabálya:** a megfigyelhető kimenet egyezik, a kódot önállóan írjuk.
+- **Levezetés:** az együtthatók és az eltolások eredetét az [ADR 0004](../adr/0004-yuv-to-rgb-conversion.md) rögzíti, az RFC belső ellentmondásait pedig az [ADR 0005](../adr/0005-rfc-6386-discrepancies.md).
 
 ### 3.3 Szabadalmak
 
@@ -75,21 +76,25 @@ Az API nem változik. A veszteséges és az alfás képek eddig `unsupportedFeat
 ```text
 Sources/RasterWebPDecoder/
 ├── Lossy/
-│   ├── BoolDecoder.swift        Aritmetikai dekóder, RFC 6386 7. fejezet
-│   ├── FrameHeader.swift        Kulcskép-fejléc, szegmensek, szűrő, kvantálás
-│   ├── Partitions.swift         Token-partíciók helye és ellenőrzése
-│   ├── MacroblockModes.swift    Predikciós módok és kontextusaik
-│   ├── Coefficients.swift       Token-fa, valószínűségek, együtthatók
-│   ├── InverseTransforms.swift  Inverz WHT és DCT
-│   ├── Prediction.swift         16x16, 4x4 és színpredikció
-│   ├── LoopFilter.swift         Egyszerű és normál szűrő
-│   ├── LossyDecoder.swift       Soronkénti pipeline
-│   └── Tables/                  Az RFC-ből kiemelt táblázatok
+│   ├── BoolDecoder.swift          Aritmetikai dekóder, RFC 6386 7. fejezet
+│   ├── FrameHeader.swift          Kulcskép-fejléc, szegmensek, szűrő, kvantálás
+│   ├── VP8Constants.swift         Kis rögzített értékek: módok, sávok, cikcakk-sorrend
+│   ├── VP8Tables.swift            Az RFC-ből szkripttel kiemelt táblázatok
+│   ├── LossyDecoder.swift         Partíciók, módok, tokenek, soronkénti pipeline
+│   ├── Transforms.swift           Inverz WHT és DCT
+│   ├── Prediction.swift           16x16, 4x4 és színpredikció
+│   ├── LoopFilter.swift           Egyszerű és normál szűrő, skalár változat
+│   └── LoopFilter+Vectors.swift   Ugyanez 16 szegmensre egyszerre, SIMD-del
 ├── Alpha/
-│   └── AlphaDecoder.swift       ALPH chunk, szűrők, VP8L-alapú dekódolás
-└── Color/
-    └── YUVConversion.swift      Felskálázás és YUV → RGB
+│   └── AlphaDecoder.swift         ALPH chunk, szűrők, VP8L-alapú dekódolás
+├── Color/
+│   └── YUVConversion.swift        Felskálázás és YUV → RGB
+└── Support/
+    ├── Span+Vectors.swift         Határ-ellenőrzött vektoros betöltés és tárolás
+    └── SIMD+Lanewise.swift        Elágazásmentes minimum, maximum és vágás
 ```
+
+A megvalósítás közben a tervezett `Partitions`, `MacroblockModes` és `Coefficients` fájlok a `LossyDecoder.swift`-be kerültek, mert ugyanazt az állapotot használják.
 
 ## 6. Adatfolyam és memória
 
@@ -138,7 +143,7 @@ A memóriaterv kulcsa, hogy **soronként haladunk**:
 
 - Szegmensenként előre kiszámolt szorzók.
 - Inverz WHT a 16x16-os módok DC-együtthatóihoz.
-- Inverz DCT három változatban: csak DC, kevés együttható és teljes. Mindegyik bitre egyezik a szabvánnyal.
+- Inverz DCT két változatban: csak DC és teljes. Mindegyik bitre egyezik a szabvánnyal. A kevés együtthatós változatra a vektoros teljes transzformáció mellett nem volt szükség.
 
 ### 7.6 Predikció (12. fejezet)
 
@@ -201,16 +206,19 @@ Mindegyik egy-egy szkripttel kerül ki az RFC szövegéből, generált Swift-fá
 | Robusztusság | Csonkolás, bitforgatás, véletlen mutációk |
 | Fuzzing | A meglévő dekóder-fuzzer, plusz egy új VP8-fuzzer, amely saját bool kódolóval érvényes fejléceket és mélyre jutó adatokat készít |
 
+A mért sorlefedettség a teljes tesztkészlettel: a dekóder fájljai 98,7–100%-osak, a projektterv 90%-os célja felett.
+
 ## 11. Teljesítményterv
 
-| Kép | libwebp (mért, NEON-nal) | M3 belépő cél (50%) |
-|---|---:|---:|
-| q75 | 149 Mpx/s | 75 Mpx/s |
-| q90 | 99 Mpx/s | 50 Mpx/s |
+| Kép | libwebp (mért, NEON-nal) | M3 belépő cél (50%) | Elért |
+|---|---:|---:|---:|
+| q75 | 149 Mpx/s | 75 Mpx/s | 104 Mpx/s (71%) |
+| q90 | 99 Mpx/s | 50 Mpx/s | 75 Mpx/s (78%) |
 
 - A libwebp itt erősen használ NEON-utasításokat, ezért ez nehezebb cél, mint a VP8L volt.
 - Először skalár kód készül bounds-checkelt hozzáféréssel, utána profil alapján optimalizálunk.
 - Natív SIMD csak az elfogadott szabály szerint jöhet: elkülönített fájlban, skalár tartalékkal, és csak ha a mérés indokolja. A valószínű jelöltek az inverz DCT, a loop filter, a predikció és a színkonverzió.
+- **Eredmény:** natív SIMD-re nem volt szükség. A célt a standard könyvtár hordozható SIMD-típusai bőven elérték. A lépéseket és a tanulságokat a [teljesítmény-dokumentum](../performance/m3-vp8-decoder.md) rögzíti.
 
 ## 12. Megvalósítási sorrend
 

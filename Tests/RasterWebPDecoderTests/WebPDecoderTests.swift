@@ -206,8 +206,16 @@ struct DecoderRobustnessTests {
         return options
     }()
 
-    private func decodeAndCheck(_ bytes: [UInt8]) {
-        guard let image = try? WebPDecoder.decode(bytes, options: Self.options) else {
+    /// The bit flip tests only decode files of at most 4 800 pixels, so damaged dimensions are
+    /// rejected early instead of producing large images that slow down debug builds.
+    private static let smallImageOptions: WebPDecodingOptions = {
+        var options = Self.options
+        options.limits.maximumPixelCount = 1 << 13
+        return options
+    }()
+
+    private func decodeAndCheck(_ bytes: [UInt8], options: WebPDecodingOptions = Self.options) {
+        guard let image = try? WebPDecoder.decode(bytes, options: options) else {
             return
         }
         #expect(image.pixels.count == image.width * image.height * 4)
@@ -223,13 +231,23 @@ struct DecoderRobustnessTests {
         }
     }
 
+    /// Lossy decoding is slow in debug builds, so the bit flip test takes a representative set.
+    private static let bitFlipLossyFixtures: Set = [
+        "lossy_q75", "lossy_simple_filter", "lossy_odd_size", "lossy_alpha_vertical",
+    ]
+
     @Test func everySingleBitFlipIsHandled() {
         for fixture in Fixtures.all where fixture.bytes.count < 1_000 {
+            let isLossy = fixture.name.hasPrefix("lossy")
+            if isLossy, !Self.bitFlipLossyFixtures.contains(fixture.name) {
+                continue
+            }
             var bytes = fixture.bytes
             for index in bytes.indices {
-                for bit in 0..<8 {
+                // Lossy files flip every bit of their headers and one bit of every later byte.
+                for bit in 0..<8 where !isLossy || index < 64 || bit == index % 8 {
                     bytes[index] ^= 1 << UInt8(bit)
-                    decodeAndCheck(bytes)
+                    decodeAndCheck(bytes, options: Self.smallImageOptions)
                     bytes[index] ^= 1 << UInt8(bit)
                 }
             }

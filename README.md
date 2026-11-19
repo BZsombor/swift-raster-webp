@@ -5,7 +5,7 @@ WebP support written entirely in Swift, with no C dependencies and no Foundation
 This package is the first building block of **raster**, a planned cross-platform image library for Swift.
 
 > [!IMPORTANT]
-> **Early development.** The package decodes lossless WebP images. Lossy images and animations are not supported yet.
+> **Early development.** The package decodes still WebP images, both lossless and lossy, with transparency. Animations are not supported yet.
 
 ## Usage
 
@@ -53,7 +53,7 @@ print(info.width, info.height, info.compression, info.hasAlpha)
 
 - [x] RIFF container parsing and image properties
 - [x] Lossless decoding (VP8L)
-- [ ] Lossy decoding (VP8) with alpha
+- [x] Lossy decoding (VP8) with alpha
 - [ ] Animation decoding, and ICC, EXIF and XMP access
 - [ ] Lossless encoding, then the 1.0 release
 - [ ] Lossy and animation encoding

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Állapot** | Az M1 kiadva 0.1.0 verzióként, az M2 (VP8L dekóder) helyben elkészült |
+| **Állapot** | Az M1 kiadva 0.1.0 verzióként. Az M2 (VP8L dekóder) a `main`-en van, a 0.2.0 kiadásra vár. Az M3 (VP8 dekóder) elkészült az `m3-vp8-decoder` ágon |
 | **Dátum** | 2026-11-18 |
 | **Cél** | Könnyű, gyors, tisztán Swiftben írt, cross-platform WebP-kodek |
 | **Nagyobb kép** | A `raster` képfeldolgozó könyvtár első építőköve |
@@ -700,9 +700,9 @@ Az x86-64-es és a WebAssembly-teljesítmény mérése az M2-re marad, mert addi
 
 **Kész, ha:**
 
-- [ ] Az 56 `vp80` vektor és az alpha-fájlok bit-pontosan egyeznek a `dwebp` kimenetével.
-- [ ] A sebesség eléri a libwebp 50%-át.
-- [ ] A memóriahasználat megfelel a [3.3 fejezetnek](#33-memória).
+- [x] Az 56 `vp80` vektor és az alpha-fájlok bit-pontosan egyeznek a `dwebp` kimenetével.
+- [x] A sebesség eléri a libwebp 50%-át. *(Mért érték: q75-ön 71%, q90-en 78%.)*
+- [x] A memóriahasználat megfelel a [3.3 fejezetnek](#33-memória).
 
 ### M4 – Kiterjesztett funkciók
 
