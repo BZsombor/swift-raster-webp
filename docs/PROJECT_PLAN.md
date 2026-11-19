@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Állapot** | Az M1 kiadva 0.1.0 verzióként, a következő az M2 (VP8L dekóder) |
+| **Állapot** | Az M1 kiadva 0.1.0 verzióként, az M2 (VP8L dekóder) helyben elkészült |
 | **Dátum** | 2026-11-18 |
 | **Cél** | Könnyű, gyors, tisztán Swiftben írt, cross-platform WebP-kodek |
 | **Nagyobb kép** | A `raster` képfeldolgozó könyvtár első építőköve |
@@ -676,7 +676,7 @@ Az x86-64-es és a WebAssembly-teljesítmény mérése az M2-re marad, mert addi
 
 ### M2 – VP8L dekóder
 
-**Méret: L** · **Kiadás: 0.2.0**
+**Méret: L** · **Kiadás: 0.2.0** · [Részletes terv](milestones/M2-vp8l-decoder.md)
 
 - Bitolvasó, Huffman, color cache, LZ77, négy transzformáció.
 - Pixelformátumok és alpha-kezelés.
@@ -684,8 +684,8 @@ Az x86-64-es és a WebAssembly-teljesítmény mérése az M2-re marad, mert addi
 
 **Kész, ha:**
 
-- [ ] A 32 `lossless_vec` és a többi veszteségmentes fájl pixelre egyezik.
-- [ ] A sebesség eléri a libwebp 50%-át.
+- [x] A 32 `lossless_vec` és a többi veszteségmentes fájl pixelre egyezik.
+- [x] A sebesség eléri a libwebp 50%-át. *(Mért érték: 90–94%.)*
 - [ ] A VP8L-fuzzer 24 órát fut hiba nélkül.
 - [ ] Az első publikus bejelentés elkészül.
 

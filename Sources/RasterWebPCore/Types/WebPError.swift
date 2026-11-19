@@ -22,11 +22,20 @@ public struct WebPError: Error, Hashable, Sendable {
 
         /// An image bitstream violates the WebP specification.
         public static var malformedBitstream: Kind { Kind(rawValue: 3) }
+
+        /// The file uses a WebP feature that this version cannot decode.
+        public static var unsupportedFeature: Kind { Kind(rawValue: 4) }
+
+        /// Decoding the file would exceed the configured resource limits.
+        public static var limitExceeded: Kind { Kind(rawValue: 5) }
+
+        /// The output buffer or its layout cannot hold the decoded image.
+        public static var invalidOutputBuffer: Kind { Kind(rawValue: 6) }
     }
 
-    let detail: Detail
+    package let detail: Detail
 
-    init(_ detail: Detail) {
+    package init(_ detail: Detail) {
         self.detail = detail
     }
 
@@ -45,7 +54,7 @@ extension WebPError: CustomStringConvertible {
 
 extension WebPError {
     /// The precise reason for a failure.
-    enum Detail: UInt8 {
+    package enum Detail: UInt8 {
         case notWebP
         case truncated
 
@@ -78,6 +87,20 @@ extension WebPError {
         case vp8lHeaderTooShort
         case vp8lMissingSignature
         case vp8lUnknownVersion
+        case vp8lDuplicateTransform
+        case vp8lInvalidColorCacheSize
+        case vp8lInvalidPrefixCode
+        case vp8lInvalidCodeLengths
+        case vp8lInvalidBackwardReference
+
+        case lossyDecodingUnsupported
+        case animationDecodingUnsupported
+
+        case pixelLimitExceeded
+        case memoryLimitExceeded
+
+        case outputBufferTooSmall
+        case invalidBytesPerRow
 
         var kind: Kind {
             switch self {
@@ -93,8 +116,16 @@ extension WebPError {
                 .malformedContainer
             case .vp8HeaderTooShort, .vp8NotKeyFrame, .vp8UnknownProfile, .vp8NotDisplayable,
                 .vp8PartitionExceedsChunk, .vp8MissingStartCode, .vp8EmptyDimension,
-                .vp8lHeaderTooShort, .vp8lMissingSignature, .vp8lUnknownVersion:
+                .vp8lHeaderTooShort, .vp8lMissingSignature, .vp8lUnknownVersion,
+                .vp8lDuplicateTransform, .vp8lInvalidColorCacheSize, .vp8lInvalidPrefixCode,
+                .vp8lInvalidCodeLengths, .vp8lInvalidBackwardReference:
                 .malformedBitstream
+            case .lossyDecodingUnsupported, .animationDecodingUnsupported:
+                .unsupportedFeature
+            case .pixelLimitExceeded, .memoryLimitExceeded:
+                .limitExceeded
+            case .outputBufferTooSmall, .invalidBytesPerRow:
+                .invalidOutputBuffer
             }
         }
 
@@ -130,6 +161,17 @@ extension WebPError {
             case .vp8lHeaderTooShort: "The VP8L header is too short."
             case .vp8lMissingSignature: "The VP8L signature is missing."
             case .vp8lUnknownVersion: "The VP8L version is unknown."
+            case .vp8lDuplicateTransform: "A VP8L transform appears more than once."
+            case .vp8lInvalidColorCacheSize: "The VP8L color cache size is invalid."
+            case .vp8lInvalidPrefixCode: "A VP8L prefix code is invalid."
+            case .vp8lInvalidCodeLengths: "The VP8L code lengths are invalid."
+            case .vp8lInvalidBackwardReference: "A VP8L backward reference is invalid."
+            case .lossyDecodingUnsupported: "Decoding lossy WebP images is not supported yet."
+            case .animationDecodingUnsupported: "Decoding animated WebP images is not supported yet."
+            case .pixelLimitExceeded: "The image has more pixels than the configured limit."
+            case .memoryLimitExceeded: "Decoding the image needs more memory than the configured limit."
+            case .outputBufferTooSmall: "The output buffer is too small for the decoded image."
+            case .invalidBytesPerRow: "The output row size is too small for the image width."
             }
         }
     }

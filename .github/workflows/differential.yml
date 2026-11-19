@@ -1,0 +1,21 @@
+name: Differential
+
+on:
+  schedule:
+    - cron: "43 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  libwebp:
+    name: Compare with libwebp
+    runs-on: ubuntu-24.04
+    container: swift:6.3-noble
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Install the libwebp tools
+        run: apt-get update && apt-get install -y webp
+      - name: Compare random images
+        run: swift run -c release --package-path Tools webp-tools differential 500 "${GITHUB_RUN_ID}"

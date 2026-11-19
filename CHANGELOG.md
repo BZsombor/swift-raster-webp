@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+### Added
+
+- Lossless (VP8L) image decoding with `WebPDecoder`.
+- RGBA, BGRA, RGB and BGR output, with straight or premultiplied alpha.
+- Decoding into caller-provided memory.
+- Pixel and memory limits for untrusted files.
+
 ## [0.1.0] - 2026-11-18
 
 ### Added

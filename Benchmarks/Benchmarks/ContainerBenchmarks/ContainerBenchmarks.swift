@@ -2,13 +2,13 @@ import Benchmark
 import Foundation
 import RasterWebP
 
-private func fixture(_ name: String) -> [UInt8] {
+private func fixture(_ name: String, in target: String = "RasterWebPCoreTests") -> [UInt8] {
     let url = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent()
         .deletingLastPathComponent()
         .deletingLastPathComponent()
         .deletingLastPathComponent()
-        .appendingPathComponent("Tests/RasterWebPCoreTests/Fixtures/\(name).webp")
+        .appendingPathComponent("Tests/\(target)/Fixtures/\(name).webp")
     guard let data = try? Data(contentsOf: url) else {
         fatalError("Missing fixture \(name)")
     }
@@ -27,6 +27,15 @@ let benchmarks: @Sendable () -> Void = {
         Benchmark("WebPImageInfo.parsing/\(name)") { benchmark in
             for _ in benchmark.scaledIterations {
                 blackHole(try WebPImageInfo(parsing: bytes))
+            }
+        }
+    }
+
+    for name in ["gradient", "mixed", "noise", "palette_256"] {
+        let bytes = fixture(name, in: "RasterWebPDecoderTests")
+        Benchmark("WebPDecoder.decode/\(name)") { benchmark in
+            for _ in benchmark.scaledIterations {
+                blackHole(try WebPDecoder.decode(bytes))
             }
         }
     }

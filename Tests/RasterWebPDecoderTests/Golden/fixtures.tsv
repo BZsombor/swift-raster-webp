@@ -1,0 +1,11 @@
+# file	status	width	height	compression	alpha	animated	pixels-fnv1a64
+extended.webp	ok	64	48	lossless	false	false	5cd1a8ee237b2425
+gradient.webp	ok	64	48	lossless	false	false	5cd1a8ee237b2425
+gradient_alpha.webp	ok	64	48	lossless	true	false	1c8c2d516b948fa5
+mixed.webp	ok	256	256	lossless	true	false	8407c8450e244434
+near_lossless.webp	ok	96	96	lossless	true	false	40b2a4c663678584
+noise.webp	ok	48	48	lossless	true	false	1e33f086d2fffb5f
+palette_16.webp	ok	80	60	lossless	true	false	648774931e0e7e74
+palette_2.webp	ok	80	60	lossless	true	false	185d1d7fc49d0d59
+palette_256.webp	ok	80	60	lossless	true	false	7f42d987b2c2a62c
+palette_4.webp	ok	80	60	lossless	true	false	97faad91e843fc38

@@ -21,50 +21,38 @@ extension WebPImageInfo {
     /// - Parameter bytes: The contents of the file.
     /// - Throws: A ``WebPError`` if the data is not a valid WebP file.
     public init(parsing bytes: Span<UInt8>) throws(WebPError) {
-        var chunks = try RIFFChunkReader(file: bytes)
+        self = try WebPFileLayout(parsing: bytes).info
+    }
 
-        guard let first = try chunks.next(in: bytes) else {
-            throw WebPError(.noChunks)
+    /// Parses a file that starts with the given `VP8X` chunk.
+    static func parseExtendedFile(
+        first: RIFFChunk,
+        chunks: inout RIFFChunkReader,
+        bytes: Span<UInt8>
+    ) throws(WebPError) -> WebPFileLayout {
+        let canvas = try ExtendedHeader(chunk: first, bytes: bytes)
+        if canvas.isAnimated {
+            let info = try parseAnimation(canvas: canvas, chunks: &chunks, bytes: bytes)
+            return WebPFileLayout(info: info, imagePayload: nil)
         }
-
-        switch first.fourCC {
-        case .vp8, .vp8l:
-            let header = try BitstreamHeader(chunk: first, bytes: bytes)
-            self.init(
-                width: header.width,
-                height: header.height,
-                compression: header.compression,
-                hasAlpha: header.hasAlpha,
-                animation: nil,
-                hasICCProfile: false,
-                hasEXIF: false,
-                hasXMP: false
-            )
-        case .vp8x:
-            let canvas = try ExtendedHeader(chunk: first, bytes: bytes)
-            if canvas.isAnimated {
-                self = try Self.parseAnimation(canvas: canvas, chunks: &chunks, bytes: bytes)
-            } else {
-                self = try Self.parseExtendedStill(canvas: canvas, chunks: &chunks, bytes: bytes)
-            }
-        default:
-            throw WebPError(.unexpectedFirstChunk)
-        }
+        return try parseExtendedStill(canvas: canvas, chunks: &chunks, bytes: bytes)
     }
 
     private static func parseExtendedStill(
         canvas: ExtendedHeader,
         chunks: inout RIFFChunkReader,
         bytes: Span<UInt8>
-    ) throws(WebPError) -> WebPImageInfo {
+    ) throws(WebPError) -> WebPFileLayout {
         var metadata = MetadataPresence()
         var hasAlphaChunk = false
         var image: BitstreamHeader?
+        var imagePayload: Range<Int>?
 
         while image == nil, let chunk = try chunks.next(in: bytes) {
             switch chunk.fourCC {
             case .vp8, .vp8l:
                 image = try BitstreamHeader(chunk: chunk, bytes: bytes)
+                imagePayload = chunk.payload
             case .alph:
                 hasAlphaChunk = true
             default:
@@ -84,7 +72,7 @@ extension WebPImageInfo {
             metadata.record(chunk.fourCC)
         }
 
-        return WebPImageInfo(
+        let info = WebPImageInfo(
             width: canvas.width,
             height: canvas.height,
             compression: image.compression,
@@ -94,6 +82,7 @@ extension WebPImageInfo {
             hasEXIF: metadata.hasEXIF,
             hasXMP: metadata.hasXMP
         )
+        return WebPFileLayout(info: info, imagePayload: imagePayload)
     }
 
     private static func parseAnimation(

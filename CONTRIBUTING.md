@@ -39,18 +39,32 @@ Regenerate the unit test fixtures:
 
 ```bash
 swift run --package-path Tools webp-tools fixtures Tests/RasterWebPCoreTests/Fixtures
+swift run --package-path Tools webp-tools decoder-fixtures Tests/RasterWebPDecoderTests/Fixtures
 ```
 
 Regenerate the conformance data:
 
 ```bash
 swift run --package-path Tools webp-tools golden .corpus/libwebp-test-data Tests/ConformanceTests/Golden/libwebp-test-data.tsv
+swift run --package-path Tools webp-tools golden Tests/RasterWebPDecoderTests/Fixtures Tests/RasterWebPDecoderTests/Golden/fixtures.tsv
 ```
 
-Fuzz the container parser for one minute:
+Compare the decoder with `dwebp` on random images:
 
 ```bash
-docker run --rm -v "$PWD:/work:ro" -w /work swift:6.3-noble Fuzz/run.sh 60
+swift run -c release --package-path Tools webp-tools differential 500
+```
+
+Compare decoding speed with `dwebp`:
+
+```bash
+swift run -c release --package-path Tools webp-tools speed image.webp
+```
+
+Fuzz for one minute. The targets are `container`, `decoder` and `vp8l`:
+
+```bash
+docker run --rm -v "$PWD:/work:ro" -w /work swift:6.3-noble Fuzz/run.sh decoder 60
 ```
 
 Run the benchmarks:

@@ -9,10 +9,14 @@ permissions:
   contents: read
 
 jobs:
-  container:
-    name: Container parser
+  fuzz:
+    name: ${{ matrix.target }}
     runs-on: ubuntu-24.04
     container: swift:6.3-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [container, decoder, vp8l]
     env:
       FUZZ_WORK: ${{ github.workspace }}/.fuzz
     steps:
@@ -20,14 +24,14 @@ jobs:
       - name: Restore the corpus
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
-          path: .fuzz/corpus
-          key: fuzz-corpus-${{ github.run_id }}
-          restore-keys: fuzz-corpus-
+          path: .fuzz/${{ matrix.target }}/corpus
+          key: fuzz-corpus-${{ matrix.target }}-${{ github.run_id }}
+          restore-keys: fuzz-corpus-${{ matrix.target }}-
       - name: Fuzz for ten minutes
-        run: Fuzz/run.sh 600
+        run: Fuzz/run.sh ${{ matrix.target }} 600
       - name: Keep crashing inputs
         if: failure()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: fuzz-artifacts
-          path: .fuzz/artifacts
+          name: fuzz-artifacts-${{ matrix.target }}
+          path: .fuzz/${{ matrix.target }}/artifacts

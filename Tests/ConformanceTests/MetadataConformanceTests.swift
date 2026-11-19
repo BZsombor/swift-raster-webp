@@ -11,12 +11,16 @@
         let compression: WebPCompression
         let hasAlpha: Bool
         let isAnimated: Bool
+        let pixelHash: UInt64
 
         init?(line: Substring) {
             let fields = line.split(separator: "\t").map(String.init)
-            guard fields.count == 8, fields[1] == "ok", let width = Int(fields[2]), let height = Int(fields[3]) else {
+            guard fields.count == 8, fields[1] == "ok", let width = Int(fields[2]), let height = Int(fields[3]),
+                let pixelHash = UInt64(fields[7], radix: 16)
+            else {
                 return nil
             }
+            self.pixelHash = pixelHash
             file = fields[0]
             self.width = width
             self.height = height
@@ -72,5 +76,27 @@
                 #expect(info.isAnimated == entry.isAnimated, "\(entry.file)")
             }
         }
+
+        @Test(.enabled(if: corpusDirectory != nil, "Run Scripts/fetch-corpus.sh first"))
+        func losslessPixelsMatchLibwebp() throws {
+            let directory = try #require(corpusDirectory)
+            let entries = goldenEntries.filter { $0.compression == .lossless }
+            #expect(entries.count > 40)
+
+            for entry in entries {
+                let bytes = try [UInt8](Data(contentsOf: directory.appendingPathComponent(entry.file)))
+                let image = try WebPDecoder.decode(bytes)
+                #expect(fnv1a(image.pixels) == entry.pixelHash, "\(entry.file)")
+            }
+        }
+    }
+
+    /// Hashes bytes with 64-bit FNV-1a, matching `webp-tools golden`.
+    private func fnv1a(_ bytes: [UInt8]) -> UInt64 {
+        var hash: UInt64 = 0xCBF2_9CE4_8422_2325
+        for byte in bytes {
+            hash = (hash ^ UInt64(byte)) &* 0x0000_0100_0000_01B3
+        }
+        return hash
     }
 #endif

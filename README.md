@@ -5,37 +5,54 @@ WebP support written entirely in Swift, with no C dependencies and no Foundation
 This package is the first building block of **raster**, a planned cross-platform image library for Swift.
 
 > [!IMPORTANT]
-> **Early development.** The package can read WebP file properties. It cannot decode or encode pixels yet.
+> **Early development.** The package decodes lossless WebP images. Lossy images and animations are not supported yet.
 
 ## Usage
 
 Add the package to your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/BZsombor/swift-raster-webp.git", from: "0.1.0")
+.package(url: "https://github.com/BZsombor/swift-raster-webp.git", branch: "main")
 ```
 
 ```swift
 .product(name: "RasterWebP", package: "swift-raster-webp")
 ```
 
-Read the properties of a complete WebP file:
+Decode an image:
 
 ```swift
 import RasterWebP
 
+let image = try WebPDecoder.decode(bytes)
+
+print(image.width, image.height)
+print(image.pixels.count)    // RGBA, four bytes per pixel
+```
+
+Choose the output format and limit the resources that untrusted files can use:
+
+```swift
+var options = WebPDecodingOptions()
+options.pixelFormat = .bgra8
+options.alphaMode = .premultiplied
+options.limits.maximumPixelCount = 50_000_000
+
+let image = try WebPDecoder.decode(bytes, options: options)
+```
+
+Read the properties of a file without decoding it:
+
+```swift
 let info = try WebPImageInfo(parsing: bytes)
 
-print(info.width, info.height)
-print(info.compression)      // .lossy, .lossless or .mixed
-print(info.hasAlpha)
-print(info.animation?.frameCount ?? 1)
+print(info.width, info.height, info.compression, info.hasAlpha)
 ```
 
 ## Roadmap
 
 - [x] RIFF container parsing and image properties
-- [ ] Lossless decoding (VP8L)
+- [x] Lossless decoding (VP8L)
 - [ ] Lossy decoding (VP8) with alpha
 - [ ] Animation decoding, and ICC, EXIF and XMP access
 - [ ] Lossless encoding, then the 1.0 release

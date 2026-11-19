@@ -1,7 +1,7 @@
 import Foundation
 
 /// Hashes bytes with 64-bit FNV-1a, which the conformance tests can reproduce on any platform.
-private func fnv1a(_ bytes: UnsafeRawBufferPointer) -> UInt64 {
+func fnv1a(_ bytes: UnsafeRawBufferPointer) -> UInt64 {
     var hash: UInt64 = 0xCBF2_9CE4_8422_2325
     for byte in bytes {
         hash = (hash ^ UInt64(byte)) &* 0x0000_0100_0000_01B3
@@ -54,7 +54,7 @@ private struct ReferenceEntry {
 }
 
 /// Returns the hash of the RGBA samples in a PAM file written by `dwebp`.
-private func pixelHash(ofPAM url: URL) throws -> UInt64 {
+func pixelHash(ofPAM url: URL) throws -> UInt64 {
     let data = try Data(contentsOf: url, options: .alwaysMapped)
     guard let marker = data.range(of: Data("ENDHDR\n".utf8)) else {
         throw ToolFailure(description: "\(url.lastPathComponent) has no PAM header")
