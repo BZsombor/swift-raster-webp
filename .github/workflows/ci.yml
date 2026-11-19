@@ -56,3 +56,22 @@ jobs:
           --checksum cabfa08b73bb8ac783927ecd15fa386e99d0c139c5f232445067bcf58379cae7
       - name: Test on 32-bit WebAssembly
         run: swift test --swift-sdk swift-6.3.3-RELEASE_wasm
+
+  # One stable check name for branch protection. The cross-platform job names contain Swift
+  # versions, which change whenever the matrix is updated.
+  passed:
+    name: CI passed
+    if: always()
+    needs: [cross-platform, apple, webassembly]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every platform to pass
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: ${RESULTS}"
+          for result in ${RESULTS}; do
+            if [ "${result}" != "success" ]; then
+              exit 1
+            fi
+          done
