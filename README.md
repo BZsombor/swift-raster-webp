@@ -49,6 +49,18 @@ let info = try WebPImageInfo(parsing: bytes)
 print(info.width, info.height, info.compression, info.hasAlpha)
 ```
 
+## Performance
+
+Decoding a 24 Mpx photo on an Apple M5, on one thread:
+
+| Image | swift-raster-webp | [image-webp](https://crates.io/crates/image-webp) (Rust) | [libwebp](https://chromium.googlesource.com/webm/libwebp) (C) |
+|---|---:|---:|---:|
+| Lossy, quality 75 | **106 Mpx/s** | 74 Mpx/s | 149 Mpx/s |
+| Lossy, quality 90 | **78 Mpx/s** | 58 Mpx/s | 99 Mpx/s |
+| Lossless | **70 Mpx/s** | 57 Mpx/s | 74 Mpx/s |
+
+All three produce identical pixels. swift-raster-webp uses no platform intrinsics and checks the bounds of every memory access. See [the comparison](docs/performance/comparison.md) for the method and a script that reproduces it.
+
 ## Roadmap
 
 - [x] RIFF container parsing and image properties

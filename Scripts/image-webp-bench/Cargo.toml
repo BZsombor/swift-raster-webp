@@ -1,0 +1,15 @@
+[package]
+name = "image-webp-bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Measures the Rust image-webp crate for Scripts/compare-decoders.sh.
+[dependencies]
+image-webp = "=0.2.4"
+
+# The fastest build cargo offers, so the comparison does not understate Rust.
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
