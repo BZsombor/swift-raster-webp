@@ -4,7 +4,7 @@
 |---|---|
 | **Cél** | Veszteséges WebP-képek dekódolása tiszta Swiftben, átlátszósággal együtt |
 | **Kiadás** | 0.3.0 |
-| **Állapot** | Elkészült az `m3-vp8-decoder` ágon. A `main`-be pull requesttel kerül, a CI-futás után |
+| **Állapot** | Elkészült, minden kész-feltétel teljesül. A `main`-be a [#1-es pull request](https://github.com/BZsombor/swift-raster-webp/pull/1) viszi |
 | **Normatív források** | RFC 6386 (VP8), RFC 9649 2.7.1.2 (ALPH) |
 | **Alapszabály** | A kód a szabványból készül, más könyvtárakból nem veszünk át kódot ([ADR 0003](../adr/0003-implementation-sources.md)) |
 
@@ -36,7 +36,7 @@ Ez a projekt legnagyobb mérföldköve. A VP8 kulcskép-dekódolása körülbel�
 - [x] A sebesség eléri a libwebp 50%-át: q75-ön legalább 75 Mpx/s, q90-en legalább 50 Mpx/s. *(Mért érték: 104 és 75 Mpx/s, a libwebp 71 és 78%-a.)*
 - [x] A munkamemória a képszélességgel arányos, nem a képterülettel. *(Egy 24 Mpx-es képnél kb. 7 MB, alfával is.)*
 - [x] A dekóder teljes mérete a 400 KB-os kereten belül marad. *(Mért érték: 200 KB a konténerrel együtt.)*
-- [ ] A CI minden platformon zöld.
+- [x] A CI minden platformon zöld. *(macOS, iOS, tvOS, watchOS, visionOS, Linux, Windows, Android és WebAssembly.)*
 
 ## 3. Források és jogi háttér
 
