@@ -4,7 +4,7 @@
 |---|---|
 | **Cél** | Veszteségmentes WebP-képek dekódolása tiszta Swiftben |
 | **Kiadás** | 0.2.0 |
-| **Állapot** | Kész, a CI minden platformon zöld |
+| **Állapot** | Kiadva 0.2.0 verzióként 2026-11-20-án, 24 órás hibamentes fuzzolás után |
 | **Normatív forrás** | RFC 9649, 3. fejezet |
 | **Alapszabály** | A kód a szabványból készül, más könyvtárakból nem veszünk át kódot ([ADR 0003](../adr/0003-implementation-sources.md)) |
 
