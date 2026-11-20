@@ -4,7 +4,7 @@
 |---|---|
 | **Cél** | Veszteséges WebP-képek dekódolása tiszta Swiftben, átlátszósággal együtt |
 | **Kiadás** | 0.3.0 |
-| **Állapot** | Elkészült, minden kész-feltétel teljesül. A `main`-be a [#1-es pull request](https://github.com/BZsombor/swift-raster-webp/pull/1) viszi |
+| **Állapot** | Kész a `main`-en, minden kész-feltétel teljesül. A 0.3.0 kiadás a 24 órás fuzzolás után jön |
 | **Normatív források** | RFC 6386 (VP8), RFC 9649 2.7.1.2 (ALPH) |
 | **Alapszabály** | A kód a szabványból készül, más könyvtárakból nem veszünk át kódot ([ADR 0003](../adr/0003-implementation-sources.md)) |
 
