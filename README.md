@@ -12,7 +12,7 @@ This package is the first building block of **raster**, a planned cross-platform
 Add the package to your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/BZsombor/swift-raster-webp.git", branch: "main")
+.package(url: "https://github.com/BZsombor/swift-raster-webp.git", from: "0.3.0")
 ```
 
 ```swift
