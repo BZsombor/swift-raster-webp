@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Állapot** | Az M2 (VP8L dekóder) kiadva 0.2.0 verzióként. Az M3 (VP8 dekóder) kész a `main`-en, a 0.3.0 kiadás a 24 órás fuzzolásra vár |
+| **Állapot** | Az M3 (VP8 dekóder) kiadva 0.3.0 verzióként, a következő az M4 (animáció és metaadatok) |
 | **Dátum** | 2026-11-18 |
 | **Cél** | Könnyű, gyors, tisztán Swiftben írt, cross-platform WebP-kodek |
 | **Nagyobb kép** | A `raster` képfeldolgozó könyvtár első építőköve |

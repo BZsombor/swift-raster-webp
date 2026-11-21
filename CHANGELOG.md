@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file. The format is b
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-21
+
 ### Added
 
 - Lossy (VP8) image decoding, bit-exact with libwebp's `dwebp`, including segments, both loop filters and multiple token partitions.
@@ -25,6 +27,7 @@ All notable changes to this project are documented in this file. The format is b
 - RIFF container parsing.
 - `WebPImageInfo` for reading image properties without decoding pixels.
 
-[Unreleased]: https://github.com/BZsombor/swift-raster-webp/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/BZsombor/swift-raster-webp/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/BZsombor/swift-raster-webp/releases/tag/0.3.0
 [0.2.0]: https://github.com/BZsombor/swift-raster-webp/releases/tag/0.2.0
 [0.1.0]: https://github.com/BZsombor/swift-raster-webp/releases/tag/0.1.0
