@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="338" viewBox="0 0 760 338" role="img" aria-label="Lossy, quality 75: decoding speed">
+<title>Lossy, quality 75: decoding speed</title>
+<style>text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}</style>
+<text x="0" y="22" font-size="17" font-weight="600" fill="#1f2328">Lossy, quality 75: decoding speed</text>
+<text x="0" y="44" font-size="13" fill="#59636e">Megapixels per second on a 11158 × 2156 photo, longer is better · Apple M5, Docker</text>
+<text x="0" y="83" font-size="14" font-weight="400" fill="#1f2328">libwebp <tspan fill="#59636e" font-weight="400">C</tspan></text>
+<rect x="230" y="70" width="420.0" height="18" rx="3" fill="#afb8c1"/>
+<text x="658.0" y="83" font-size="13" font-weight="400" fill="#1f2328">147 Mpx/s</text>
+<text x="0" y="113" font-size="14" font-weight="400" fill="#1f2328">zenwebp <tspan fill="#59636e" font-weight="400">Rust</tspan></text>
+<rect x="230" y="100" width="343.9" height="18" rx="3" fill="#afb8c1"/>
+<text x="581.9" y="113" font-size="13" font-weight="400" fill="#1f2328">121 Mpx/s</text>
+<text x="0" y="143" font-size="14" font-weight="600" fill="#1f2328">swift-raster-webp <tspan fill="#59636e" font-weight="400">Swift</tspan></text>
+<rect x="230" y="130" width="287.1" height="18" rx="3" fill="#0969da"/>
+<text x="525.1" y="143" font-size="13" font-weight="600" fill="#1f2328">101 Mpx/s</text>
+<text x="0" y="173" font-size="14" font-weight="400" fill="#1f2328">image-webp <tspan fill="#59636e" font-weight="400">Rust</tspan></text>
+<rect x="230" y="160" width="193.0" height="18" rx="3" fill="#afb8c1"/>
+<text x="431.0" y="173" font-size="13" font-weight="400" fill="#1f2328">68 Mpx/s</text>
+<text x="0" y="203" font-size="14" font-weight="400" fill="#1f2328">ImageSharp <tspan fill="#59636e" font-weight="400">C#</tspan></text>
+<rect x="230" y="190" width="151.5" height="18" rx="3" fill="#afb8c1"/>
+<text x="389.5" y="203" font-size="13" font-weight="400" fill="#1f2328">53 Mpx/s</text>
+<text x="0" y="233" font-size="14" font-weight="400" fill="#1f2328">x/image/webp † <tspan fill="#59636e" font-weight="400">Go</tspan></text>
+<rect x="230" y="220" width="144.0" height="18" rx="3" fill="#afb8c1"/>
+<text x="382.0" y="233" font-size="13" font-weight="400" fill="#1f2328">51 Mpx/s</text>
+<text x="0" y="263" font-size="14" font-weight="400" fill="#1f2328">jwebp † <tspan fill="#59636e" font-weight="400">Java</tspan></text>
+<rect x="230" y="250" width="117.1" height="18" rx="3" fill="#afb8c1"/>
+<text x="355.1" y="263" font-size="13" font-weight="400" fill="#1f2328">41 Mpx/s</text>
+<text x="0" y="293" font-size="14" font-weight="400" fill="#1f2328">TwelveMonkeys † <tspan fill="#59636e" font-weight="400">Java</tspan></text>
+<rect x="230" y="280" width="71.6" height="18" rx="3" fill="#afb8c1"/>
+<text x="309.6" y="293" font-size="13" font-weight="400" fill="#1f2328">25 Mpx/s</text>
+<text x="0" y="328" font-size="12" fill="#59636e">† Its pixels differ from libwebp&#x27;s on this image.</text>
+</svg>

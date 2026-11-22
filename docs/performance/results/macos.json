@@ -1,0 +1,306 @@
+{
+  "environment": {
+    "machine": "Apple M5",
+    "architecture": "arm64",
+    "processors": "10",
+    "os": "macOS 26.7.3",
+    "swift": "Swift version 6.4.2",
+    "cc": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
+    "imageio-version": "macOS 26.7.3",
+    "date": "2026-11-22",
+    "swift-raster-webp-version": "0.3.0",
+    "name": "macos"
+  },
+  "libraries": [
+    {
+      "id": "swift-raster-webp",
+      "name": "swift-raster-webp",
+      "language": "Swift",
+      "version": "0.3.0"
+    },
+    {
+      "id": "libwebp",
+      "name": "libwebp",
+      "language": "C",
+      "version": "1.6.0"
+    },
+    {
+      "id": "imageio",
+      "name": "ImageIO",
+      "language": "Apple",
+      "version": "macOS 26.7.3"
+    }
+  ],
+  "images": {
+    "photo-alpha.webp": {
+      "label": "Lossy with alpha, quality 75",
+      "width": 11158,
+      "height": 2156
+    },
+    "photo-lossless.webp": {
+      "label": "Lossless",
+      "width": 11158,
+      "height": 2156
+    },
+    "photo-q75.webp": {
+      "label": "Lossy, quality 75",
+      "width": 11158,
+      "height": 2156
+    },
+    "photo-q90.webp": {
+      "label": "Lossy, quality 90",
+      "width": 11158,
+      "height": 2156
+    },
+    "small-lossless.webp": {
+      "label": "Small lossless",
+      "width": 256,
+      "height": 256
+    },
+    "small-q75.webp": {
+      "label": "Small lossy, quality 75",
+      "width": 256,
+      "height": 256
+    }
+  },
+  "speed": {
+    "swift-raster-webp": {
+      "photo-alpha.webp": {
+        "median_ms": 257.315437,
+        "best_ms": 256.053958,
+        "runs": 20,
+        "megapixels_per_second": 93.49088527479212
+      },
+      "photo-lossless.webp": {
+        "median_ms": 357.77247950000003,
+        "best_ms": 357.04725,
+        "runs": 20,
+        "megapixels_per_second": 67.2400740091022
+      },
+      "photo-q75.webp": {
+        "median_ms": 237.73172900000003,
+        "best_ms": 237.06308400000003,
+        "runs": 20,
+        "megapixels_per_second": 101.19241592694594
+      },
+      "photo-q90.webp": {
+        "median_ms": 324.98006250000003,
+        "best_ms": 323.411541,
+        "runs": 20,
+        "megapixels_per_second": 74.02499653344117
+      },
+      "small-lossless.webp": {
+        "median_ms": 0.89975,
+        "best_ms": 0.8427910000000001,
+        "runs": 1000,
+        "megapixels_per_second": 72.83801055848846
+      },
+      "small-q75.webp": {
+        "median_ms": 0.6198535000000001,
+        "best_ms": 0.5787500000000001,
+        "runs": 1000,
+        "megapixels_per_second": 105.7282083589106
+      }
+    },
+    "libwebp": {
+      "photo-alpha.webp": {
+        "median_ms": 171.563,
+        "best_ms": 171.124,
+        "runs": 20,
+        "megapixels_per_second": 140.22049043208617
+      },
+      "photo-lossless.webp": {
+        "median_ms": 317.7465,
+        "best_ms": 315.619,
+        "runs": 20,
+        "megapixels_per_second": 75.71019035614867
+      },
+      "photo-q75.webp": {
+        "median_ms": 163.734,
+        "best_ms": 162.653,
+        "runs": 20,
+        "megapixels_per_second": 146.925183529383
+      },
+      "photo-q90.webp": {
+        "median_ms": 248.569,
+        "best_ms": 247.519,
+        "runs": 20,
+        "megapixels_per_second": 96.78056394803858
+      },
+      "small-lossless.webp": {
+        "median_ms": 0.874,
+        "best_ms": 0.726,
+        "runs": 1000,
+        "megapixels_per_second": 74.98398169336384
+      },
+      "small-q75.webp": {
+        "median_ms": 0.421,
+        "best_ms": 0.392,
+        "runs": 1000,
+        "megapixels_per_second": 155.66745843230404
+      }
+    },
+    "imageio": {
+      "photo-alpha.webp": {
+        "median_ms": 360.20887500000003,
+        "best_ms": 359.31,
+        "runs": 20,
+        "megapixels_per_second": 66.78527285037049
+      },
+      "photo-lossless.webp": {
+        "median_ms": 665.4225205,
+        "best_ms": 657.7772910000001,
+        "runs": 20,
+        "megapixels_per_second": 36.15244038017195
+      },
+      "photo-q75.webp": {
+        "median_ms": 343.900438,
+        "best_ms": 342.71587500000004,
+        "runs": 20,
+        "megapixels_per_second": 69.95236220082975
+      },
+      "photo-q90.webp": {
+        "median_ms": 512.7165,
+        "best_ms": 509.81020800000005,
+        "runs": 20,
+        "megapixels_per_second": 46.919980144972904
+      },
+      "small-lossless.webp": {
+        "median_ms": 1.9402085000000002,
+        "best_ms": 1.7554580000000002,
+        "runs": 1000,
+        "megapixels_per_second": 33.777813054627885
+      },
+      "small-q75.webp": {
+        "median_ms": 0.93125,
+        "best_ms": 0.868542,
+        "runs": 1000,
+        "megapixels_per_second": 70.37422818791946
+      }
+    }
+  },
+  "memory": {
+    "swift-raster-webp": {
+      "photo-alpha.webp": {
+        "peak_mb": 101.890625,
+        "baseline_mb": 9.34375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 0.778045654296875
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 126.671875,
+        "baseline_mb": 31.75,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 3.153045654296875
+      },
+      "photo-q75.webp": {
+        "peak_mb": 101.859375,
+        "baseline_mb": 9.34375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 0.746795654296875
+      },
+      "photo-q90.webp": {
+        "peak_mb": 104.578125,
+        "baseline_mb": 12.109375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 0.699920654296875
+      }
+    },
+    "libwebp": {
+      "photo-alpha.webp": {
+        "peak_mb": 213.15625,
+        "baseline_mb": 4.921875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 116.46554565429688
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 214.03125,
+        "baseline_mb": 27.34375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 94.91867065429688
+      },
+      "photo-q75.webp": {
+        "peak_mb": 97.796875,
+        "baseline_mb": 4.9375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 1.090545654296875
+      },
+      "photo-q90.webp": {
+        "peak_mb": 100.5625,
+        "baseline_mb": 7.703125,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 1.090545654296875
+      }
+    },
+    "imageio": {
+      "photo-alpha.webp": {
+        "peak_mb": 408.390625,
+        "baseline_mb": 9.296875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 307.3249206542969
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 431.6875,
+        "baseline_mb": 31.703125,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 308.2155456542969
+      },
+      "photo-q75.webp": {
+        "peak_mb": 292.984375,
+        "baseline_mb": 9.296875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 191.91867065429688
+      },
+      "photo-q90.webp": {
+        "peak_mb": 298.546875,
+        "baseline_mb": 12.0625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 194.71554565429688
+      }
+    }
+  },
+  "conformance": {
+    "swift-raster-webp": {
+      "matching": 131,
+      "errors": 0,
+      "total": 131
+    },
+    "libwebp": {
+      "matching": 131,
+      "errors": 0,
+      "total": 131
+    },
+    "imageio": {
+      "matching": 107,
+      "errors": 0,
+      "total": 131
+    }
+  },
+  "matches_libwebp": {
+    "swift-raster-webp": {
+      "photo-alpha.webp": true,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    },
+    "libwebp": {
+      "photo-alpha.webp": true,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    },
+    "imageio": {
+      "photo-alpha.webp": false,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    }
+  },
+  "size": {}
+}

@@ -51,15 +51,24 @@ print(info.width, info.height, info.compression, info.hasAlpha)
 
 ## Performance
 
-Decoding a 24 Mpx photo on an Apple M5, on one thread:
+Compared with every independent WebP decoder we found, on one thread, in the same Linux container on an Apple M5:
 
-| Image | swift-raster-webp | [image-webp](https://crates.io/crates/image-webp) (Rust) | [libwebp](https://chromium.googlesource.com/webm/libwebp) (C) |
-|---|---:|---:|---:|
-| Lossy, quality 75 | **106 Mpx/s** | 74 Mpx/s | 149 Mpx/s |
-| Lossy, quality 90 | **78 Mpx/s** | 58 Mpx/s | 99 Mpx/s |
-| Lossless | **70 Mpx/s** | 57 Mpx/s | 74 Mpx/s |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/performance/charts/speed-photo-q75-dark.svg">
+  <img alt="Lossy decoding speed: libwebp 147, zenwebp 121, swift-raster-webp 101, image-webp 68, ImageSharp 53, Go 51, jwebp 41 and TwelveMonkeys 25 megapixels per second" src="docs/performance/charts/speed-photo-q75-light.svg">
+</picture>
 
-All three produce identical pixels. swift-raster-webp uses no platform intrinsics and checks the bounds of every memory access. See [the comparison](docs/performance/comparison.md) for the method and a script that reproduces it.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/performance/charts/speed-photo-lossless-dark.svg">
+  <img alt="Lossless decoding speed: libwebp 74, zenwebp 62, swift-raster-webp 57, image-webp 53, jwebp 51, ImageSharp 41, Go 36 and TwelveMonkeys 21 megapixels per second" src="docs/performance/charts/speed-photo-lossless-light.svg">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/performance/charts/memory-photo-lossless-dark.svg">
+  <img alt="Extra memory for lossless decoding: swift-raster-webp 2.5 MB, Go 5.6 MB, TwelveMonkeys 62 MB, zenwebp 71 MB, image-webp 74 MB, libwebp 95 MB, jwebp 129 MB and ImageSharp 226 MB" src="docs/performance/charts/memory-photo-lossless-light.svg">
+</picture>
+
+swift-raster-webp decodes every file of the libwebp test corpus to the same pixels as libwebp, uses no platform intrinsics and checks the bounds of every memory access. See [the full comparison](docs/performance/comparison.md) for small images, binary size, macOS with Apple's ImageIO, the method and a script that reproduces it.
 
 ## Roadmap
 

@@ -7,6 +7,7 @@ publish = false
 # Measures the Rust image-webp crate for Scripts/compare-decoders.sh.
 [dependencies]
 image-webp = "=0.2.4"
+bench-support = { path = "../rust-support" }
 
 # The fastest build cargo offers, so the comparison does not understate Rust.
 [profile.release]

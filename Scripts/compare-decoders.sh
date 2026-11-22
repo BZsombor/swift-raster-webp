@@ -1,57 +1,71 @@
 #!/usr/bin/env bash
 #
-# Compares the decoding speed of this package with libwebp and the Rust image-webp crate.
+# Compares this package with other WebP decoders and redraws the charts.
 #
 #   Scripts/fetch-corpus.sh
-#   Scripts/compare-decoders.sh
+#   Scripts/compare-decoders.sh [--skip-macos]
 #
-# Needs swift, cargo, cwebp and dwebp. The test images, the Rust build and its downloaded
-# crates live in a temporary directory that is removed at the end, so the script leaves
-# nothing behind except the usual Tools/.build directory.
+# The Linux run needs Docker. It installs every toolchain inside a swift:6.3-noble container that
+# is removed afterward. The macOS run also needs Swift and Homebrew's webp package. Temporary files
+# are removed at the end, so only the results and the charts in docs/performance remain.
 
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly source="${root}/.corpus/libwebp-test-data/bryce.webp"
+readonly comparison="${root}/Benchmarks/Comparison"
+readonly results="${root}/docs/performance/results"
+readonly container=raster-webp-comparison
 
-if [[ ! -f "${source}" ]]; then
+if [[ "$(basename "${root}")" != swift-raster-webp ]]; then
+    echo "The repository must be checked out in a directory named swift-raster-webp" >&2
+    exit 1
+fi
+if [[ ! -f "${root}/.corpus/libwebp-test-data/bryce.webp" ]]; then
     echo "Run Scripts/fetch-corpus.sh first" >&2
     exit 1
 fi
-for tool in swift cargo cwebp dwebp; do
-    command -v "${tool}" > /dev/null || { echo "Missing ${tool}" >&2; exit 1; }
-done
+command -v docker > /dev/null || { echo "Missing docker" >&2; exit 1; }
+
+measure_macos=true
+[[ "${1:-}" == --skip-macos || "$(uname)" != Darwin ]] && measure_macos=false
 
 work="$(mktemp -d)"
 readonly work
-trap 'rm -rf "${work:?}"' EXIT
+cleanup() {
+    docker rm -f "${container}" > /dev/null 2>&1 || true
+    rm -rf "${work:?}"
+}
+trap cleanup EXIT
 
-# The 24 Mpx photo of the corpus, encoded as a typical web image, a high-quality one and a
-# lossless one.
-dwebp -quiet "${source}" -pam -o "${work}/bryce.pam"
-cwebp -quiet -q 75 -m 4 "${work}/bryce.pam" -o "${work}/lossy_q75.webp"
-cwebp -quiet -q 90 -m 4 "${work}/bryce.pam" -o "${work}/lossy_q90.webp"
-cwebp -quiet -lossless -z 6 "${work}/bryce.pam" -o "${work}/lossless.webp"
-readonly images=("${work}/lossy_q75.webp" "${work}/lossy_q90.webp" "${work}/lossless.webp")
+# The latest tag when the library's sources have not changed since it, otherwise the commit.
+version="$(git -C "${root}" describe --tags --abbrev=0 2>/dev/null || true)"
+if [[ -z "${version}" ]] || ! git -C "${root}" diff --quiet "${version}" -- Sources Package.swift; then
+    version="$(git -C "${root}" describe --tags --always --dirty)"
+fi
+machine="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || lscpu | sed -n 's/^Model name: *//p' | head -1)"
 
-echo "Building the decoders" >&2
-swift build -c release --package-path "${root}/Tools" > /dev/null
-CARGO_HOME="${work}/cargo" CARGO_TARGET_DIR="${work}/target" \
-    cargo build --quiet --release --locked --manifest-path "${root}/Scripts/image-webp-bench/Cargo.toml"
-
-echo "Measuring" >&2
-swift_results="$("${root}/Tools/.build/release/webp-tools" speed "${images[@]}")"
-rust_results="$("${work}/target/release/image-webp-bench" "${images[@]}")"
-
-# Each line reads "name: N Mpx/s", followed by "dwebp N Mpx/s" for this package's tool.
-speed() { grep "^$1:" <<< "$2" | sed -E "s/^[^:]*: ([0-9]+) Mpx\/s.*/\1/"; }
-reference() { grep "^$1:" <<< "${swift_results}" | sed -E 's/.*dwebp ([0-9]+) Mpx\/s.*/\1/'; }
-
-echo
-echo "| Image | swift-raster-webp | image-webp | libwebp |"
-echo "|---|---:|---:|---:|"
-for image in "${images[@]}"; do
-    name="$(basename "${image}")"
-    echo "| ${name%.webp} | $(speed "${name}" "${swift_results}") Mpx/s" \
-        "| $(speed "${name}" "${rust_results}") Mpx/s | $(reference "${name}") Mpx/s |"
+echo "Measuring in a Linux container, which takes about half an hour" >&2
+mkdir -p "${work}/linux"
+docker run --rm --name "${container}" -v "${root}:/src/swift-raster-webp:ro" -v "${work}/linux:/out" \
+    swift:6.3-noble /src/swift-raster-webp/Benchmarks/Comparison/run-linux.sh
+# The container resolves the Go and .NET dependencies when their lock files are missing.
+for lock in go/go.sum dotnet/packages.lock.json; do
+    [[ -f "${comparison}/${lock}" ]] || cp "${work}/linux/raw/$(basename "${lock}")" "${comparison}/${lock}"
 done
+architecture="$(sed -n 's/^architecture\t//p' "${work}/linux/raw/environment.tsv")"
+printf 'machine\t%s, Docker\nswift-raster-webp-version\t%s\n' "${machine}" "${version}" \
+    >> "${work}/linux/raw/environment.tsv"
+mkdir -p "${results}"
+python3 -I "${comparison}/collect.py" "${work}/linux/raw" linux "${results}/linux-${architecture}.json"
+
+render=("${results}/linux-${architecture}.json")
+if [[ "${measure_macos}" == true ]]; then
+    echo "Measuring natively on macOS" >&2
+    "${comparison}/run-macos.sh" "${work}/linux/images" "${work}/macos"
+    printf 'swift-raster-webp-version\t%s\n' "${version}" >> "${work}/macos/raw/environment.tsv"
+    python3 -I "${comparison}/collect.py" "${work}/macos/raw" macos "${results}/macos.json"
+    render+=("${results}/macos.json")
+fi
+
+python3 -I "${comparison}/render.py" "${render[@]}"
+echo "Updated docs/performance/comparison.md and its charts" >&2

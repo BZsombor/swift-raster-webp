@@ -3,6 +3,10 @@
 version = 4
 
 [[package]]
+name = "bench-support"
+version = "0.1.0"
+
+[[package]]
 name = "byteorder-lite"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -22,6 +26,7 @@ dependencies = [
 name = "image-webp-bench"
 version = "0.1.0"
 dependencies = [
+ "bench-support",
  "image-webp",
 ]
 

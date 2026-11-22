@@ -1,0 +1,17 @@
+[package]
+name = "zenwebp-bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Measures the Rust zenwebp crate for Scripts/compare-decoders.sh. zenwebp is licensed under the
+# AGPL or a commercial license. This program only measures it and is not part of the package.
+[dependencies]
+zenwebp = "=0.4.6"
+bench-support = { path = "../rust-support" }
+
+# The fastest build cargo offers, so the comparison does not understate Rust.
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1

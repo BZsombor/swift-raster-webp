@@ -9,3 +9,8 @@ DerivedData/
 Package.resolved
 Fuzz/out/
 Fuzz/corpus/
+
+# Local builds of the comparison programs
+Benchmarks/Comparison/*/target/
+Benchmarks/Comparison/dotnet/bin/
+Benchmarks/Comparison/dotnet/obj/

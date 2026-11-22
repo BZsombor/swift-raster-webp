@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="168" viewBox="0 0 760 168" role="img" aria-label="Small lossless: decoding time">
+<title>Small lossless: decoding time</title>
+<style>text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}</style>
+<text x="0" y="22" font-size="17" font-weight="600" fill="#f0f6fc">Small lossless: decoding time</text>
+<text x="0" y="44" font-size="13" fill="#9198a1">Time per 256 × 256 image, shorter is better · Apple M5</text>
+<text x="0" y="83" font-size="14" font-weight="400" fill="#f0f6fc">libwebp <tspan fill="#9198a1" font-weight="400">C</tspan></text>
+<rect x="230" y="70" width="189.2" height="18" rx="3" fill="#656c76"/>
+<text x="427.2" y="83" font-size="13" font-weight="400" fill="#f0f6fc">874 µs</text>
+<text x="0" y="113" font-size="14" font-weight="600" fill="#f0f6fc">swift-raster-webp <tspan fill="#9198a1" font-weight="400">Swift</tspan></text>
+<rect x="230" y="100" width="194.8" height="18" rx="3" fill="#4493f8"/>
+<text x="432.8" y="113" font-size="13" font-weight="600" fill="#f0f6fc">900 µs</text>
+<text x="0" y="143" font-size="14" font-weight="400" fill="#f0f6fc">ImageIO <tspan fill="#9198a1" font-weight="400">Apple</tspan></text>
+<rect x="230" y="130" width="420.0" height="18" rx="3" fill="#656c76"/>
+<text x="658.0" y="143" font-size="13" font-weight="400" fill="#f0f6fc">1,940 µs</text>
+</svg>
