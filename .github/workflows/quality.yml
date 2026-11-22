@@ -19,7 +19,7 @@ jobs:
         run: >
           swift format lint --strict --recursive
           Package.swift Sources Tests Tools/Package.swift Tools/Sources
-          Benchmarks/Package.swift Benchmarks/Benchmarks Fuzz/Sources
+          Benchmarks/Package.swift Benchmarks/Benchmarks Benchmarks/Comparison/swift Fuzz/Sources
 
   api-breakage:
     name: API compatibility

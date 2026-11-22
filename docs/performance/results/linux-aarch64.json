@@ -1,0 +1,730 @@
+{
+  "environment": {
+    "architecture": "aarch64",
+    "processors": "10",
+    "os": "Ubuntu 24.04.5 LTS",
+    "swift": "Swift version 6.3.3 (swift-6.3.3-RELEASE)",
+    "cc": "clang version 21.0.0 (https://github.com/swiftlang/llvm-project.git 82cdc19fa54d566969527b56f587ea8ea30bef51)",
+    "rust": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+    "go": "go version go1.27.4 linux/arm64",
+    "dotnet": "10.0.404",
+    "java": "openjdk version \"21.0.13.1\" 2026-11-17",
+    "date": "2026-11-22",
+    "machine": "Apple M5, Docker",
+    "swift-raster-webp-version": "0.3.0",
+    "name": "linux"
+  },
+  "libraries": [
+    {
+      "id": "swift-raster-webp",
+      "name": "swift-raster-webp",
+      "language": "Swift",
+      "version": "0.3.0"
+    },
+    {
+      "id": "libwebp",
+      "name": "libwebp",
+      "language": "C",
+      "version": "1.6.0"
+    },
+    {
+      "id": "zenwebp",
+      "name": "zenwebp",
+      "language": "Rust",
+      "version": "0.4.6"
+    },
+    {
+      "id": "image-webp",
+      "name": "image-webp",
+      "language": "Rust",
+      "version": "0.2.4"
+    },
+    {
+      "id": "x-image-webp",
+      "name": "x/image/webp",
+      "language": "Go",
+      "version": "v0.48.0"
+    },
+    {
+      "id": "imagesharp",
+      "name": "ImageSharp",
+      "language": "C#",
+      "version": "3.1.12"
+    },
+    {
+      "id": "twelvemonkeys",
+      "name": "TwelveMonkeys",
+      "language": "Java",
+      "version": "3.15.3"
+    },
+    {
+      "id": "jwebp",
+      "name": "jwebp",
+      "language": "Java",
+      "version": "0.2.0"
+    }
+  ],
+  "images": {
+    "photo-alpha.webp": {
+      "label": "Lossy with alpha, quality 75",
+      "width": 11158,
+      "height": 2156
+    },
+    "photo-lossless.webp": {
+      "label": "Lossless",
+      "width": 11158,
+      "height": 2156
+    },
+    "photo-q75.webp": {
+      "label": "Lossy, quality 75",
+      "width": 11158,
+      "height": 2156
+    },
+    "photo-q90.webp": {
+      "label": "Lossy, quality 90",
+      "width": 11158,
+      "height": 2156
+    },
+    "small-lossless.webp": {
+      "label": "Small lossless",
+      "width": 256,
+      "height": 256
+    },
+    "small-q75.webp": {
+      "label": "Small lossy, quality 75",
+      "width": 256,
+      "height": 256
+    }
+  },
+  "speed": {
+    "swift-raster-webp": {
+      "photo-alpha.webp": {
+        "median_ms": 256.105159,
+        "best_ms": 254.42731400000002,
+        "runs": 20,
+        "megapixels_per_second": 93.93269582671701
+      },
+      "photo-lossless.webp": {
+        "median_ms": 420.30465100000004,
+        "best_ms": 418.46388900000005,
+        "runs": 20,
+        "megapixels_per_second": 57.23621649858925
+      },
+      "photo-q75.webp": {
+        "median_ms": 238.59344600000003,
+        "best_ms": 237.60946800000002,
+        "runs": 20,
+        "megapixels_per_second": 100.82694392200528
+      },
+      "photo-q90.webp": {
+        "median_ms": 328.1611065,
+        "best_ms": 326.58790300000004,
+        "runs": 20,
+        "megapixels_per_second": 73.30743200062923
+      },
+      "small-lossless.webp": {
+        "median_ms": 0.988593,
+        "best_ms": 0.9368010000000001,
+        "runs": 1000,
+        "megapixels_per_second": 66.29219506915383
+      },
+      "small-q75.webp": {
+        "median_ms": 0.6171935000000001,
+        "best_ms": 0.5724640000000001,
+        "runs": 1000,
+        "megapixels_per_second": 106.18387912380798
+      }
+    },
+    "libwebp": {
+      "photo-alpha.webp": {
+        "median_ms": 174.627524,
+        "best_ms": 174.257165,
+        "runs": 20,
+        "megapixels_per_second": 137.7597726232435
+      },
+      "photo-lossless.webp": {
+        "median_ms": 324.739967,
+        "best_ms": 323.869,
+        "runs": 20,
+        "megapixels_per_second": 74.0797266879072
+      },
+      "photo-q75.webp": {
+        "median_ms": 163.103408,
+        "best_ms": 162.587882,
+        "runs": 20,
+        "megapixels_per_second": 147.49322711883494
+      },
+      "photo-q90.webp": {
+        "median_ms": 247.250231,
+        "best_ms": 246.551558,
+        "runs": 20,
+        "megapixels_per_second": 97.29676652961346
+      },
+      "small-lossless.webp": {
+        "median_ms": 0.818571,
+        "best_ms": 0.771883,
+        "runs": 1000,
+        "megapixels_per_second": 80.06147298157398
+      },
+      "small-q75.webp": {
+        "median_ms": 0.429963,
+        "best_ms": 0.403046,
+        "runs": 1000,
+        "megapixels_per_second": 152.42241774292205
+      }
+    },
+    "zenwebp": {
+      "photo-alpha.webp": {
+        "median_ms": 229.787747,
+        "best_ms": 228.93895,
+        "runs": 20,
+        "megapixels_per_second": 104.69073444547067
+      },
+      "photo-lossless.webp": {
+        "median_ms": 390.4432645,
+        "best_ms": 389.549325,
+        "runs": 20,
+        "megapixels_per_second": 61.613684207888284
+      },
+      "photo-q75.webp": {
+        "median_ms": 199.18694950000003,
+        "best_ms": 198.36842099999998,
+        "runs": 20,
+        "megapixels_per_second": 120.77421769040143
+      },
+      "photo-q90.webp": {
+        "median_ms": 276.619371,
+        "best_ms": 275.611064,
+        "runs": 20,
+        "megapixels_per_second": 86.96660654325615
+      },
+      "small-lossless.webp": {
+        "median_ms": 0.935062,
+        "best_ms": 0.889274,
+        "runs": 1000,
+        "megapixels_per_second": 70.08733110745598
+      },
+      "small-q75.webp": {
+        "median_ms": 0.504633,
+        "best_ms": 0.474093,
+        "runs": 1000,
+        "megapixels_per_second": 129.86863720763407
+      }
+    },
+    "image-webp": {
+      "photo-alpha.webp": {
+        "median_ms": 373.73242949999997,
+        "best_ms": 372.588447,
+        "runs": 20,
+        "megapixels_per_second": 64.368639435931
+      },
+      "photo-lossless.webp": {
+        "median_ms": 452.605835,
+        "best_ms": 450.164663,
+        "runs": 20,
+        "megapixels_per_second": 53.15143142155911
+      },
+      "photo-q75.webp": {
+        "median_ms": 355.0296025,
+        "best_ms": 353.74298,
+        "runs": 20,
+        "megapixels_per_second": 67.75955534581092
+      },
+      "photo-q90.webp": {
+        "median_ms": 440.7240945,
+        "best_ms": 439.73012,
+        "runs": 20,
+        "megapixels_per_second": 54.584372173461915
+      },
+      "small-lossless.webp": {
+        "median_ms": 1.034389,
+        "best_ms": 0.98485,
+        "runs": 1000,
+        "megapixels_per_second": 63.35720894170375
+      },
+      "small-q75.webp": {
+        "median_ms": 0.9292315,
+        "best_ms": 0.8612099999999999,
+        "runs": 1000,
+        "megapixels_per_second": 70.5270968536904
+      }
+    },
+    "x-image-webp": {
+      "photo-alpha.webp": {
+        "median_ms": 586.897022,
+        "best_ms": 583.585037,
+        "runs": 20,
+        "megapixels_per_second": 40.989555404491384
+      },
+      "photo-lossless.webp": {
+        "median_ms": 661.076705,
+        "best_ms": 657.176137,
+        "runs": 20,
+        "megapixels_per_second": 36.39010090364627
+      },
+      "photo-q75.webp": {
+        "median_ms": 475.7309,
+        "best_ms": 474.884961,
+        "runs": 20,
+        "megapixels_per_second": 50.5677642549601
+      },
+      "photo-q90.webp": {
+        "median_ms": 649.4905385,
+        "best_ms": 648.659718,
+        "runs": 20,
+        "megapixels_per_second": 37.03925857882224
+      },
+      "small-lossless.webp": {
+        "median_ms": 1.834394,
+        "best_ms": 1.7516,
+        "runs": 1000,
+        "megapixels_per_second": 35.72623983724325
+      },
+      "small-q75.webp": {
+        "median_ms": 1.3098885,
+        "best_ms": 1.221929,
+        "runs": 1000,
+        "megapixels_per_second": 50.03173934269977
+      }
+    },
+    "imagesharp": {
+      "photo-alpha.webp": {
+        "median_ms": 461.4139,
+        "best_ms": 460.4238,
+        "runs": 20,
+        "megapixels_per_second": 52.13680818891672
+      },
+      "photo-lossless.webp": {
+        "median_ms": 580.1083,
+        "best_ms": 578.5711,
+        "runs": 20,
+        "megapixels_per_second": 41.469236003001505
+      },
+      "photo-q75.webp": {
+        "median_ms": 452.15864999999997,
+        "best_ms": 450.2447,
+        "runs": 20,
+        "megapixels_per_second": 53.20399819841996
+      },
+      "photo-q90.webp": {
+        "median_ms": 546.36905,
+        "best_ms": 545.1216,
+        "runs": 20,
+        "megapixels_per_second": 44.03003427811293
+      },
+      "small-lossless.webp": {
+        "median_ms": 1.3674499999999998,
+        "best_ms": 1.2616,
+        "runs": 1000,
+        "megapixels_per_second": 47.925701122527336
+      },
+      "small-q75.webp": {
+        "median_ms": 1.1489,
+        "best_ms": 1.066,
+        "runs": 1000,
+        "megapixels_per_second": 57.042388371485764
+      }
+    },
+    "twelvemonkeys": {
+      "photo-alpha.webp": {
+        "median_ms": 1137.599838,
+        "best_ms": 1111.939628,
+        "runs": 20,
+        "megapixels_per_second": 21.146845486804647
+      },
+      "photo-lossless.webp": {
+        "median_ms": 1170.850946,
+        "best_ms": 1161.027757,
+        "runs": 20,
+        "megapixels_per_second": 20.546294199261805
+      },
+      "photo-q75.webp": {
+        "median_ms": 956.752775,
+        "best_ms": 951.074004,
+        "runs": 20,
+        "megapixels_per_second": 25.144058766905587
+      },
+      "photo-q90.webp": {
+        "median_ms": 1074.464978,
+        "best_ms": 1066.895946,
+        "runs": 20,
+        "megapixels_per_second": 22.38942030923971
+      },
+      "small-lossless.webp": {
+        "median_ms": 3.300043,
+        "best_ms": 3.205313,
+        "runs": 1000,
+        "megapixels_per_second": 19.85913516884477
+      },
+      "small-q75.webp": {
+        "median_ms": 2.307135,
+        "best_ms": 2.189844,
+        "runs": 1000,
+        "megapixels_per_second": 28.405793332423112
+      }
+    },
+    "jwebp": {
+      "photo-alpha.webp": {
+        "median_ms": 613.769065,
+        "best_ms": 606.580413,
+        "runs": 20,
+        "megapixels_per_second": 39.19495030268428
+      },
+      "photo-lossless.webp": {
+        "median_ms": 475.991241,
+        "best_ms": 471.939817,
+        "runs": 20,
+        "megapixels_per_second": 50.54010647225334
+      },
+      "photo-q75.webp": {
+        "median_ms": 584.898208,
+        "best_ms": 577.61343,
+        "runs": 20,
+        "megapixels_per_second": 41.12963191024173
+      },
+      "photo-q90.webp": {
+        "median_ms": 734.74157,
+        "best_ms": 721.736546,
+        "runs": 20,
+        "megapixels_per_second": 32.74164547406784
+      },
+      "small-lossless.webp": {
+        "median_ms": 1.177487,
+        "best_ms": 1.100424,
+        "runs": 1000,
+        "megapixels_per_second": 55.65751469018342
+      },
+      "small-q75.webp": {
+        "median_ms": 1.48051,
+        "best_ms": 1.403342,
+        "runs": 1000,
+        "megapixels_per_second": 44.26582731626264
+      }
+    }
+  },
+  "memory": {
+    "swift-raster-webp": {
+      "photo-alpha.webp": {
+        "peak_mb": 111.5078125,
+        "baseline_mb": 18.70703125,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 1.031951904296875
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 135.36328125,
+        "baseline_mb": 41.109375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 2.485076904296875
+      },
+      "photo-q75.webp": {
+        "peak_mb": 111.49609375,
+        "baseline_mb": 18.76171875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 0.965545654296875
+      },
+      "photo-q90.webp": {
+        "peak_mb": 114.26171875,
+        "baseline_mb": 21.4921875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 1.000701904296875
+      }
+    },
+    "libwebp": {
+      "photo-alpha.webp": {
+        "peak_mb": 212.03515625,
+        "baseline_mb": 5.0,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 115.26632690429688
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 213.6640625,
+        "baseline_mb": 27.37890625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 94.51632690429688
+      },
+      "photo-q75.webp": {
+        "peak_mb": 97.63671875,
+        "baseline_mb": 5.00390625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 0.863983154296875
+      },
+      "photo-q90.webp": {
+        "peak_mb": 100.27734375,
+        "baseline_mb": 7.7578125,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 0.750701904296875
+      }
+    },
+    "zenwebp": {
+      "photo-alpha.webp": {
+        "peak_mb": 308.09765625,
+        "baseline_mb": 5.2890625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 211.03976440429688
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 190.5703125,
+        "baseline_mb": 27.59375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 71.20773315429688
+      },
+      "photo-q75.webp": {
+        "peak_mb": 166.03515625,
+        "baseline_mb": 5.29296875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 68.97335815429688
+      },
+      "photo-q90.webp": {
+        "peak_mb": 168.94921875,
+        "baseline_mb": 8.03515625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 69.14523315429688
+      }
+    },
+    "image-webp": {
+      "photo-alpha.webp": {
+        "peak_mb": 249.02734375,
+        "baseline_mb": 5.2265625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 152.03195190429688
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 193.75390625,
+        "baseline_mb": 27.65625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 74.32882690429688
+      },
+      "photo-q75.webp": {
+        "peak_mb": 168.69921875,
+        "baseline_mb": 5.28515625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 71.64523315429688
+      },
+      "photo-q90.webp": {
+        "peak_mb": 171.4453125,
+        "baseline_mb": 8.0234375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 71.65304565429688
+      }
+    },
+    "x-image-webp": {
+      "photo-alpha.webp": {
+        "peak_mb": 251.87109375,
+        "baseline_mb": 6.046875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 154.05538940429688
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 125.8046875,
+        "baseline_mb": 28.44921875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 5.586639404296875
+      },
+      "photo-q75.webp": {
+        "peak_mb": 136.828125,
+        "baseline_mb": 6.3125,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 38.746795654296875
+      },
+      "photo-q90.webp": {
+        "peak_mb": 142.3984375,
+        "baseline_mb": 8.80078125,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 41.828826904296875
+      }
+    },
+    "imagesharp": {
+      "photo-alpha.webp": {
+        "peak_mb": 349.984375,
+        "baseline_mb": 33.91015625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 224.30538940429688
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 374.546875,
+        "baseline_mb": 56.6875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 226.09054565429688
+      },
+      "photo-q75.webp": {
+        "peak_mb": 235.01171875,
+        "baseline_mb": 34.515625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 108.72726440429688
+      },
+      "photo-q90.webp": {
+        "peak_mb": 240.36328125,
+        "baseline_mb": 36.96875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 111.62570190429688
+      }
+    },
+    "twelvemonkeys": {
+      "photo-alpha.webp": {
+        "peak_mb": 691.58984375,
+        "baseline_mb": 53.8671875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 545.9538269042969
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 251.80859375,
+        "baseline_mb": 98.5390625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 61.500701904296875
+      },
+      "photo-q75.webp": {
+        "peak_mb": 825.45703125,
+        "baseline_mb": 53.66015625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 680.0280456542969
+      },
+      "photo-q90.webp": {
+        "peak_mb": 607.45703125,
+        "baseline_mb": 59.07421875,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 456.6139831542969
+      }
+    },
+    "jwebp": {
+      "photo-alpha.webp": {
+        "peak_mb": 450.01171875,
+        "baseline_mb": 52.94140625,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 305.3014831542969
+      },
+      "photo-lossless.webp": {
+        "peak_mb": 319.55078125,
+        "baseline_mb": 98.51953125,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 129.26242065429688
+      },
+      "photo-q75.webp": {
+        "peak_mb": 440.53515625,
+        "baseline_mb": 53.859375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 294.9069519042969
+      },
+      "photo-q90.webp": {
+        "peak_mb": 449.33203125,
+        "baseline_mb": 59.34375,
+        "output_mb": 91.76882934570312,
+        "extra_mb": 298.2194519042969
+      }
+    }
+  },
+  "conformance": {
+    "swift-raster-webp": {
+      "matching": 131,
+      "errors": 0,
+      "total": 131
+    },
+    "libwebp": {
+      "matching": 131,
+      "errors": 0,
+      "total": 131
+    },
+    "zenwebp": {
+      "matching": 130,
+      "errors": 0,
+      "total": 131
+    },
+    "image-webp": {
+      "matching": 130,
+      "errors": 0,
+      "total": 131
+    },
+    "x-image-webp": {
+      "matching": 43,
+      "errors": 0,
+      "total": 131
+    },
+    "imagesharp": {
+      "matching": 131,
+      "errors": 0,
+      "total": 131
+    },
+    "twelvemonkeys": {
+      "matching": 43,
+      "errors": 2,
+      "total": 131
+    },
+    "jwebp": {
+      "matching": 55,
+      "errors": 0,
+      "total": 131
+    }
+  },
+  "matches_libwebp": {
+    "swift-raster-webp": {
+      "photo-alpha.webp": true,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    },
+    "libwebp": {
+      "photo-alpha.webp": true,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    },
+    "zenwebp": {
+      "photo-alpha.webp": true,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    },
+    "image-webp": {
+      "photo-alpha.webp": true,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    },
+    "x-image-webp": {
+      "photo-alpha.webp": false,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": false,
+      "photo-q90.webp": false,
+      "small-lossless.webp": true,
+      "small-q75.webp": false
+    },
+    "imagesharp": {
+      "photo-alpha.webp": true,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": true,
+      "photo-q90.webp": true,
+      "small-lossless.webp": true,
+      "small-q75.webp": true
+    },
+    "twelvemonkeys": {
+      "photo-alpha.webp": false,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": false,
+      "photo-q90.webp": false,
+      "small-lossless.webp": true,
+      "small-q75.webp": false
+    },
+    "jwebp": {
+      "photo-alpha.webp": false,
+      "photo-lossless.webp": true,
+      "photo-q75.webp": false,
+      "photo-q90.webp": false,
+      "small-lossless.webp": true,
+      "small-q75.webp": false
+    }
+  },
+  "size": {
+    "swift-raster-webp": 204800,
+    "libwebp": 329032,
+    "zenwebp": 262144,
+    "image-webp": 131088,
+    "x-image-webp": 137056
+  }
+}

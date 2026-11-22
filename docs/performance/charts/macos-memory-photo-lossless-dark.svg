@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="188" viewBox="0 0 760 188" role="img" aria-label="Lossless: memory beyond the input and the pixels">
+<title>Lossless: memory beyond the input and the pixels</title>
+<style>text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}</style>
+<text x="0" y="22" font-size="17" font-weight="600" fill="#f0f6fc">Lossless: memory beyond the input and the pixels</text>
+<text x="0" y="44" font-size="13" fill="#9198a1">Extra peak memory while decoding the 24 Mpx photo, shorter is better · Apple M5</text>
+<text x="0" y="83" font-size="14" font-weight="600" fill="#f0f6fc">swift-raster-webp <tspan fill="#9198a1" font-weight="400">Swift</tspan></text>
+<rect x="230" y="70" width="4.3" height="18" rx="3" fill="#4493f8"/>
+<text x="242.3" y="83" font-size="13" font-weight="600" fill="#f0f6fc">3.2 MB</text>
+<text x="0" y="113" font-size="14" font-weight="400" fill="#f0f6fc">libwebp <tspan fill="#9198a1" font-weight="400">C</tspan></text>
+<rect x="230" y="100" width="129.3" height="18" rx="3" fill="#656c76"/>
+<text x="367.3" y="113" font-size="13" font-weight="400" fill="#f0f6fc">94.9 MB</text>
+<text x="0" y="143" font-size="14" font-weight="400" fill="#f0f6fc">ImageIO <tspan fill="#9198a1" font-weight="400">Apple</tspan></text>
+<rect x="230" y="130" width="420.0" height="18" rx="3" fill="#656c76"/>
+<text x="658.0" y="143" font-size="13" font-weight="400" fill="#f0f6fc">308.2 MB</text>
+<text x="0" y="178" font-size="12" fill="#9198a1">Garbage-collected runtimes (Go, C#, Java) are measured with their default settings.</text>
+</svg>
