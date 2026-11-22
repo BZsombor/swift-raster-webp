@@ -14,3 +14,8 @@ Fuzz/corpus/
 Benchmarks/Comparison/*/target/
 Benchmarks/Comparison/dotnet/bin/
 Benchmarks/Comparison/dotnet/obj/
+
+# Hungarian planning documents, kept only on the maintainer's machine
+docs/PROJECT_PLAN.md
+docs/milestones/
+docs/performance/benchmark-plan.md
