@@ -47,3 +47,25 @@ func withRawStorage<Result, Failure: Error>(
         return try unsafe span.withUnsafeMutableBytes(body)
     #endif
 }
+
+/// Calls a closure with a mutable span over the elements of `span` in `range`.
+///
+/// `MutableSpan.extracting(_:)` is not stable across the supported compilers, so the part is
+/// made from the span's buffer after checking the range.
+@inline(always)
+func withPart<Element, Result, Failure: Error>(
+    of span: inout MutableSpan<Element>,
+    _ range: Range<Int>,
+    _ body: (inout MutableSpan<Element>) throws(Failure) -> Result
+) throws(Failure) -> Result {
+    precondition(range.lowerBound >= 0 && range.upperBound <= span.count, "Range out of bounds")
+    let call: (UnsafeMutableBufferPointer<Element>) throws(Failure) -> Result = { buffer throws(Failure) in
+        var part = unsafe UnsafeMutableBufferPointer(rebasing: buffer[range]).mutableSpan
+        return try body(&part)
+    }
+    #if compiler(>=6.4)
+        return try span.withUnsafeMutableBufferPointer(call)
+    #else
+        return try unsafe span.withUnsafeMutableBufferPointer(call)
+    #endif
+}

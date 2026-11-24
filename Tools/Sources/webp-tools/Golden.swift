@@ -68,7 +68,7 @@ func pixelHash(ofPAM url: URL) throws -> UInt64 {
 /// for lossy images, the hash of the Y, U and V planes.
 func generateGolden(corpus: URL, output: URL) throws {
     let files = try FileManager.default.contentsOfDirectory(at: corpus, includingPropertiesForKeys: nil)
-        .filter { $0.pathExtension == "webp" }
+        .filter { $0.pathExtension == "webp" && !$0.lastPathComponent.hasPrefix("anim_") }
         .sorted { $0.lastPathComponent < $1.lastPathComponent }
 
     var lines = ["# file\tstatus\twidth\theight\tcompression\talpha\tanimated\tpixels-fnv1a64\tyuv-fnv1a64"]

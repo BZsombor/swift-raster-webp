@@ -32,8 +32,7 @@ extension WebPImageInfo {
     ) throws(WebPError) -> WebPFileLayout {
         let canvas = try ExtendedHeader(chunk: first, bytes: bytes)
         if canvas.isAnimated {
-            let info = try parseAnimation(canvas: canvas, chunks: &chunks, bytes: bytes)
-            return WebPFileLayout(info: info, imagePayload: nil)
+            return try parseAnimation(canvas: canvas, chunks: chunks, bytes: bytes)
         }
         return try parseExtendedStill(canvas: canvas, chunks: &chunks, bytes: bytes)
     }
@@ -43,7 +42,7 @@ extension WebPImageInfo {
         chunks: inout RIFFChunkReader,
         bytes: Span<UInt8>
     ) throws(WebPError) -> WebPFileLayout {
-        var metadata = MetadataPresence()
+        var metadata = MetadataLocations()
         var alphaPayload: Range<Int>?
         var image: BitstreamHeader?
         var imagePayload: Range<Int>?
@@ -57,7 +56,7 @@ extension WebPImageInfo {
                 // The format allows one ALPH chunk, so later ones are ignored.
                 alphaPayload = alphaPayload ?? chunk.payload
             default:
-                metadata.record(chunk.fourCC)
+                metadata.record(chunk)
             }
         }
 
@@ -71,7 +70,7 @@ extension WebPImageInfo {
 
         // The pixels are already reachable, so damage after them must not reject the image.
         while let chunk = try? chunks.next(in: bytes) {
-            metadata.record(chunk.fourCC)
+            metadata.record(chunk)
         }
 
         let info = WebPImageInfo(
@@ -80,23 +79,31 @@ extension WebPImageInfo {
             compression: image.compression,
             hasAlpha: canvas.declaresAlpha || hasAlphaChunk || image.hasAlpha,
             animation: nil,
-            hasICCProfile: metadata.hasICCProfile,
-            hasEXIF: metadata.hasEXIF,
-            hasXMP: metadata.hasXMP
+            hasICCProfile: metadata.iccProfile != nil,
+            hasEXIF: metadata.exif != nil,
+            hasXMP: metadata.xmp != nil
         )
         // A lossless image carries its own alpha, so an ALPH chunk next to it is ignored.
         let lossyAlpha = image.compression == .lossy ? alphaPayload : nil
-        return WebPFileLayout(info: info, imagePayload: imagePayload, alphaPayload: lossyAlpha)
+        return WebPFileLayout(
+            info: info,
+            imagePayload: imagePayload,
+            alphaPayload: lossyAlpha,
+            metadata: metadata
+        )
     }
 
     private static func parseAnimation(
         canvas: ExtendedHeader,
-        chunks: inout RIFFChunkReader,
+        chunks: RIFFChunkReader,
         bytes: Span<UInt8>
-    ) throws(WebPError) -> WebPImageInfo {
-        var metadata = MetadataPresence()
+    ) throws(WebPError) -> WebPFileLayout {
+        let frames = AnimationFrameReader(chunks: chunks, canvasWidth: canvas.width, canvasHeight: canvas.height)
+        var chunks = chunks
+        var metadata = MetadataLocations()
         var parameters: AnimationParameters?
         var frameCount = 0
+        var framePixelCount = 0
         var compression: WebPCompression?
         var hasAlpha = canvas.declaresAlpha
 
@@ -111,12 +118,18 @@ extension WebPImageInfo {
                 guard parameters != nil else {
                     throw WebPError(.frameBeforeANIM)
                 }
-                let frame = try AnimationFrame(chunk: chunk, canvas: canvas, bytes: bytes)
+                let frame = try AnimationFrame(
+                    chunk: chunk,
+                    canvasWidth: canvas.width,
+                    canvasHeight: canvas.height,
+                    bytes: bytes
+                )
                 frameCount += 1
-                hasAlpha = hasAlpha || frame.hasAlpha
-                compression = compression.merged(with: frame.compression)
+                framePixelCount = framePixelCount.saturatingAdd(area(frame.info.width, frame.info.height))
+                hasAlpha = hasAlpha || frame.info.hasAlpha
+                compression = compression.merged(with: frame.info.compression)
             default:
-                metadata.record(chunk.fourCC)
+                metadata.record(chunk)
             }
         }
 
@@ -127,7 +140,7 @@ extension WebPImageInfo {
             throw WebPError(.missingFrames)
         }
 
-        return WebPImageInfo(
+        let info = WebPImageInfo(
             width: canvas.width,
             height: canvas.height,
             compression: compression,
@@ -137,10 +150,30 @@ extension WebPImageInfo {
                 loopCount: parameters.loopCount,
                 backgroundColor: parameters.backgroundColor
             ),
-            hasICCProfile: metadata.hasICCProfile,
-            hasEXIF: metadata.hasEXIF,
-            hasXMP: metadata.hasXMP
+            hasICCProfile: metadata.iccProfile != nil,
+            hasEXIF: metadata.exif != nil,
+            hasXMP: metadata.xmp != nil
         )
+        return WebPFileLayout(
+            info: info,
+            imagePayload: nil,
+            metadata: metadata,
+            frames: frames,
+            framePixelCount: framePixelCount
+        )
+    }
+}
+
+/// Returns `width * height`, or `Int.max` where that does not fit, as on 32-bit platforms.
+func area(_ width: Int, _ height: Int) -> Int {
+    let (product, overflow) = width.multipliedReportingOverflow(by: height)
+    return overflow ? Int.max : product
+}
+
+extension Int {
+    fileprivate func saturatingAdd(_ other: Int) -> Int {
+        let (sum, overflow) = addingReportingOverflow(other)
+        return overflow ? Int.max : sum
     }
 }
 
@@ -150,22 +183,6 @@ extension Optional<WebPCompression> {
             return other
         }
         return .mixed
-    }
-}
-
-/// Tracks which metadata chunks appear in a file.
-private struct MetadataPresence {
-    var hasICCProfile = false
-    var hasEXIF = false
-    var hasXMP = false
-
-    mutating func record(_ fourCC: FourCC) {
-        switch fourCC {
-        case .iccp: hasICCProfile = true
-        case .exif: hasEXIF = true
-        case .xmp: hasXMP = true
-        default: break
-        }
     }
 }
 
@@ -213,54 +230,5 @@ private struct AnimationParameters {
             alpha: bytes[start + 3]
         )
         loopCount = Int(bytes.littleEndianUInt16(at: start + 4))
-    }
-}
-
-/// The validated properties of an `ANMF` chunk.
-private struct AnimationFrame {
-    private static var headerSize: Int { 16 }
-
-    let compression: WebPCompression
-    let hasAlpha: Bool
-
-    init(chunk: RIFFChunk, canvas: ExtendedHeader, bytes: Span<UInt8>) throws(WebPError) {
-        guard chunk.payload.count >= Self.headerSize else {
-            throw WebPError(.anmfTooShort)
-        }
-
-        let start = chunk.payload.lowerBound
-        let x = Int(bytes.littleEndianUInt24(at: start)) * 2
-        let y = Int(bytes.littleEndianUInt24(at: start + 3)) * 2
-        let width = Int(bytes.littleEndianUInt24(at: start + 6)) + 1
-        let height = Int(bytes.littleEndianUInt24(at: start + 9)) + 1
-
-        guard x + width <= canvas.width, y + height <= canvas.height else {
-            throw WebPError(.frameExceedsCanvas)
-        }
-
-        var frameChunks = RIFFChunkReader(range: (start + Self.headerSize)..<chunk.payload.upperBound)
-        var hasAlphaChunk = false
-        var image: BitstreamHeader?
-
-        while image == nil, let frameChunk = try frameChunks.next(in: bytes) {
-            switch frameChunk.fourCC {
-            case .vp8, .vp8l:
-                image = try BitstreamHeader(chunk: frameChunk, bytes: bytes)
-            case .alph:
-                hasAlphaChunk = true
-            default:
-                break
-            }
-        }
-
-        guard let image else {
-            throw WebPError(.frameMissingImageData)
-        }
-        guard image.width == width, image.height == height else {
-            throw WebPError(.frameSizeMismatch)
-        }
-
-        compression = image.compression
-        hasAlpha = hasAlphaChunk || image.hasAlpha
     }
 }

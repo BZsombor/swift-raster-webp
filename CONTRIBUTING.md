@@ -40,6 +40,7 @@ Regenerate the unit test fixtures:
 ```bash
 swift run --package-path Tools webp-tools fixtures Tests/RasterWebPCoreTests/Fixtures
 swift run --package-path Tools webp-tools decoder-fixtures Tests/RasterWebPDecoderTests/Fixtures
+swift run --package-path Tools webp-tools animation-fixtures Tests/RasterWebPDecoderTests/Fixtures
 ```
 
 Regenerate the conformance data:
@@ -47,21 +48,26 @@ Regenerate the conformance data:
 ```bash
 swift run --package-path Tools webp-tools golden .corpus/libwebp-test-data Tests/ConformanceTests/Golden/libwebp-test-data.tsv
 swift run --package-path Tools webp-tools golden Tests/RasterWebPDecoderTests/Fixtures Tests/RasterWebPDecoderTests/Golden/fixtures.tsv
+swift run --package-path Tools webp-tools animation-golden Tests/RasterWebPDecoderTests/Fixtures Tests/RasterWebPDecoderTests/Golden/animations.tsv
 ```
+
+The animation tools compile `Tools/Oracle/anim-oracle.c`, which renders animations with libwebp's `WebPAnimDecoder`. They need a C compiler, `pkg-config` and the libwebp development files (`libwebpdemux`).
 
 Compare the decoder with `dwebp` on random images:
 
 ```bash
 swift run -c release --package-path Tools webp-tools differential 500
+swift run -c release --package-path Tools webp-tools animation-differential 200
 ```
 
 Compare decoding speed with `dwebp`:
 
 ```bash
 swift run -c release --package-path Tools webp-tools speed image.webp
+swift run -c release --package-path Tools webp-tools animation-speed animation.webp
 ```
 
-Fuzz for one minute. The targets are `container`, `decoder` and `vp8l`:
+Fuzz for one minute. The targets are `container`, `decoder`, `vp8l`, `vp8` and `animation`:
 
 ```bash
 docker run --rm -v "$PWD:/work:ro" -w /work swift:6.3-noble Fuzz/run.sh decoder 60

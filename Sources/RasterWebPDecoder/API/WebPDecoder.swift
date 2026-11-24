@@ -1,6 +1,9 @@
 public import RasterWebPCore
 
 /// Decodes WebP images.
+///
+/// For an animation, the decoder returns its first frame as the animation shows it. Use
+/// ``WebPAnimationDecoder`` to decode every frame.
 public enum WebPDecoder {
     /// Decodes a complete WebP file.
     ///
@@ -30,38 +33,10 @@ public enum WebPDecoder {
         options: WebPDecodingOptions = WebPDecodingOptions()
     ) throws(WebPError) -> WebPImage {
         let source = try DecodingSource(bytes, limits: options.limits)
-        let bytesPerRow = source.width * options.pixelFormat.bytesPerPixel
-
-        // Decoding happens in place, so the storage must hold four bytes for every pixel.
-        let capacity = source.width * source.height * 4
-        var failure: WebPError?
-        let pixels = unsafe [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
-            unsafe buffer.initialize(repeating: 0)
-            initializedCount = bytesPerRow * source.height
-            do throws(WebPError) {
-                try unsafe decodeInPlace(
-                    bytes,
-                    source: source,
-                    storage: UnsafeMutableRawBufferPointer(buffer),
-                    options: options
-                )
-            } catch {
-                failure = error
-                initializedCount = 0
-            }
+        return try unsafe makeImage(width: source.width, height: source.height, options: options) {
+            (storage) throws(WebPError) in
+            try unsafe decodeInPlace(bytes, source: source, storage: storage, options: options)
         }
-        if let failure {
-            throw failure
-        }
-
-        return WebPImage(
-            width: source.width,
-            height: source.height,
-            pixelFormat: options.pixelFormat,
-            alphaMode: options.alphaMode,
-            bytesPerRow: bytesPerRow,
-            pixels: pixels
-        )
     }
 
     /// Decodes a complete WebP file into memory that the caller provides.
@@ -81,24 +56,21 @@ public enum WebPDecoder {
         bytesPerRow: Int,
         options: WebPDecodingOptions = WebPDecodingOptions()
     ) throws(WebPError) -> WebPImageInfo {
+        var output = output
+        return try decode(bytes, into: &output, bytesPerRow: bytesPerRow, options: options)
+    }
+
+    /// Decodes a complete WebP file into memory that the caller provides.
+    static func decode(
+        _ bytes: Span<UInt8>,
+        into output: inout MutableSpan<UInt8>,
+        bytesPerRow: Int,
+        options: WebPDecodingOptions
+    ) throws(WebPError) -> WebPImageInfo {
         let source = try DecodingSource(bytes, limits: options.limits)
-        let rowSize = source.width * options.pixelFormat.bytesPerPixel
+        try validate(&output, bytesPerRow: bytesPerRow, width: source.width, height: source.height, options: options)
 
-        guard bytesPerRow >= rowSize else {
-            throw WebPError(.invalidBytesPerRow)
-        }
-        let (rowsSize, overflow) = (source.height - 1).multipliedReportingOverflow(by: bytesPerRow)
-        guard !overflow, rowsSize <= output.count - rowSize else {
-            throw WebPError(.outputBufferTooSmall)
-        }
-
-        let isTightlyPacked = bytesPerRow == rowSize
-        let hasFourBytePixels = options.pixelFormat.bytesPerPixel == 4
-        let isAligned = unsafe withRawStorage(of: &output) { storage in
-            UInt(bitPattern: storage.baseAddress) % 4 == 0
-        }
-
-        if isAligned, isTightlyPacked, hasFourBytePixels {
+        if acceptsWorkingPixels(&output, bytesPerRow: bytesPerRow, width: source.width, options: options) {
             try unsafe withRawStorage(of: &output) { (storage) throws(WebPError) in
                 try unsafe decodeInPlace(bytes, source: source, storage: storage, options: options)
             }
@@ -111,6 +83,73 @@ public enum WebPDecoder {
         let image = try decode(bytes, options: workingOptions)
         copyRows(of: image, to: &output, bytesPerRow: bytesPerRow, format: options.pixelFormat)
         return source.info
+    }
+
+    /// Checks that `output` can hold an image of the given size.
+    static func validate(
+        _ output: inout MutableSpan<UInt8>,
+        bytesPerRow: Int,
+        width: Int,
+        height: Int,
+        options: WebPDecodingOptions
+    ) throws(WebPError) {
+        guard bytesPerRow >= width * options.pixelFormat.bytesPerPixel else {
+            throw WebPError(.invalidBytesPerRow)
+        }
+        let (rowsSize, overflow) = (height - 1).multipliedReportingOverflow(by: bytesPerRow)
+        guard !overflow, rowsSize <= output.count - width * options.pixelFormat.bytesPerPixel else {
+            throw WebPError(.outputBufferTooSmall)
+        }
+    }
+
+    /// Returns whether `output` can serve as the working storage of four-byte pixels.
+    static func acceptsWorkingPixels(
+        _ output: inout MutableSpan<UInt8>,
+        bytesPerRow: Int,
+        width: Int,
+        options: WebPDecodingOptions
+    ) -> Bool {
+        let isTightlyPacked = bytesPerRow == width * options.pixelFormat.bytesPerPixel
+        let isAligned = unsafe withRawStorage(of: &output) { storage in
+            UInt(bitPattern: storage.baseAddress) % 4 == 0
+        }
+        return isAligned && isTightlyPacked && options.pixelFormat.bytesPerPixel == 4
+    }
+
+    /// Creates an image whose pixels `fill` writes into storage of four bytes per pixel.
+    static func makeImage(
+        width: Int,
+        height: Int,
+        options: WebPDecodingOptions,
+        fill: (UnsafeMutableRawBufferPointer) throws(WebPError) -> Void
+    ) throws(WebPError) -> WebPImage {
+        let bytesPerRow = width * options.pixelFormat.bytesPerPixel
+
+        // Decoding happens in place, so the storage must hold four bytes for every pixel.
+        let capacity = width * height * 4
+        var failure: WebPError?
+        let pixels = unsafe [UInt8](unsafeUninitializedCapacity: capacity) { buffer, initializedCount in
+            unsafe buffer.initialize(repeating: 0)
+            initializedCount = bytesPerRow * height
+            do throws(WebPError) {
+                try unsafe fill(UnsafeMutableRawBufferPointer(buffer))
+            } catch {
+                failure = error
+                initializedCount = 0
+            }
+        }
+        if let failure {
+            throw failure
+        }
+
+        return WebPImage(
+            width: width,
+            height: height,
+            pixelFormat: options.pixelFormat,
+            alphaMode: options.alphaMode,
+            bytesPerRow: bytesPerRow,
+            pixels: pixels
+        )
     }
 
     /// Copies four-byte rows into the output, packing them to three bytes when required.
@@ -143,6 +182,9 @@ public enum WebPDecoder {
 
     /// Decodes into storage that is aligned for `UInt32` and holds four bytes for every pixel,
     /// or exactly the pixels of a tightly packed four-byte format.
+    ///
+    /// It runs once per image, so it is kept out of line to avoid a copy in every caller.
+    @inline(never)
     private static func decodeInPlace(
         _ bytes: Span<UInt8>,
         source: DecodingSource,
@@ -150,31 +192,44 @@ public enum WebPDecoder {
         options: WebPDecodingOptions
     ) throws(WebPError) {
         let pixelCount = source.width * source.height
-        let workingStorage = unsafe UnsafeMutableRawBufferPointer(rebasing: storage[..<(pixelCount * 4)])
         var failure: WebPError?
 
-        unsafe workingStorage.withMemoryRebound(to: UInt32.self) { buffer in
-            var pixels = unsafe buffer.mutableSpan
+        unsafe storage.withMemoryRebound(to: UInt32.self) { buffer in
+            var pixels = unsafe UnsafeMutableBufferPointer(rebasing: buffer[..<pixelCount]).mutableSpan
             do throws(WebPError) {
                 var budget = MemoryBudget(limit: options.limits.maximumMemoryByteCount)
                 try budget.reserve(count: pixelCount, elementSize: MemoryLayout<UInt32>.stride)
-                if source.isLossless {
-                    try LosslessDecoder.decode(
-                        input: bytes,
-                        bitstream: source.bitstream,
-                        width: source.width,
-                        height: source.height,
-                        budget: budget,
-                        into: &pixels
-                    )
-                } else {
-                    try decodeLossy(bytes, source: source, budget: &budget, into: &pixels)
+                switch source.content {
+                case .still(let image):
+                    try decodeImage(bytes, image, budget: &budget, into: &pixels)
+                case .animation(var frames):
+                    // The first frame, drawn on a transparent canvas, is what the animation shows first.
+                    pixels.update(repeating: 0)
+                    if let frame = try frames.next(in: bytes) {
+                        var compositor = FrameCompositor(canvasWidth: source.width, canvasHeight: source.height)
+                        try compositor.draw(frame, from: bytes, on: &pixels, budget: budget)
+                    }
                 }
             } catch {
                 failure = error
-                return
             }
+        }
+        if let failure {
+            throw failure
+        }
+        unsafe convertInPlace(storage, width: source.width, height: source.height, options: options)
+    }
 
+    /// Converts ARGB pixels at the start of `storage` into the output format of `options`.
+    static func convertInPlace(
+        _ storage: UnsafeMutableRawBufferPointer,
+        width: Int,
+        height: Int,
+        options: WebPDecodingOptions
+    ) {
+        let pixelCount = width * height
+        unsafe storage.withMemoryRebound(to: UInt32.self) { buffer in
+            var pixels = unsafe buffer.mutableSpan
             if options.alphaMode == .premultiplied {
                 PixelConversion.premultiply(&pixels, count: pixelCount)
             }
@@ -184,51 +239,58 @@ public enum WebPDecoder {
                 PixelConversion.storeBGRA(&pixels, count: pixelCount)
             }
         }
-        if let failure {
-            throw failure
-        }
 
         if options.pixelFormat.bytesPerPixel == 3 {
-            var output = unsafe workingStorage.assumingMemoryBound(to: UInt8.self).mutableSpan
+            var output = unsafe storage.assumingMemoryBound(to: UInt8.self).mutableSpan
             PixelConversion.packThreeByteRows(
                 in: &output,
-                width: source.width,
-                height: source.height,
-                bytesPerRow: source.width * 3,
+                width: width,
+                height: height,
+                bytesPerRow: width * 3,
                 swapRedAndBlue: options.pixelFormat.layout == .rgb
             )
         }
     }
-}
 
-extension WebPDecoder {
-    /// Decodes a VP8 frame and its optional alpha plane into ARGB pixels.
-    fileprivate static func decodeLossy(
+    /// Decodes one image bitstream, a still image or an animation frame, into ARGB pixels.
+    static func decodeImage(
         _ bytes: Span<UInt8>,
-        source: DecodingSource,
+        _ image: ImageSource,
         budget: inout MemoryBudget,
         into pixels: inout MutableSpan<UInt32>
     ) throws(WebPError) {
+        if image.isLossless {
+            try LosslessDecoder.decode(
+                input: bytes,
+                bitstream: image.bitstream,
+                width: image.width,
+                height: image.height,
+                budget: budget,
+                into: &pixels
+            )
+            return
+        }
+
         // The alpha plane goes straight into the top byte of the output pixels, and the color
         // conversion keeps it there.
-        let hasAlpha = source.alphaPayload != nil
-        if let alphaPayload = source.alphaPayload {
+        let hasAlpha = image.alphaPayload != nil
+        if let alphaPayload = image.alphaPayload {
             try AlphaDecoder.decode(
                 input: bytes,
                 payload: alphaPayload,
-                width: source.width,
-                height: source.height,
+                width: image.width,
+                height: image.height,
                 budget: budget,
                 into: &pixels
             )
         }
 
-        var converter = YUVRowConverter(width: source.width, height: source.height)
+        var converter = YUVRowConverter(width: image.width, height: image.height)
         try LossyDecoder.decode(
             input: bytes,
-            payload: source.bitstream,
-            width: source.width,
-            height: source.height,
+            payload: image.bitstream,
+            width: image.width,
+            height: image.height,
             budget: &budget
         ) { luma, u, v, rows in
             converter.convert(luma: luma, u: u, v: v, rows: rows, hasAlpha: hasAlpha, into: &pixels)
@@ -236,11 +298,13 @@ extension WebPDecoder {
     }
 }
 
-/// The validated location and properties of the image in a file.
-private struct DecodingSource {
+/// The location and size of one image bitstream: a still image or an animation frame.
+struct ImageSource {
     private static var losslessHeaderSize: Int { 5 }
 
-    let info: WebPImageInfo
+    let width: Int
+    let height: Int
+    let isLossless: Bool
 
     /// The VP8L bitstream after its header, or the whole payload of a `VP8 ` chunk.
     let bitstream: Range<Int>
@@ -248,7 +312,48 @@ private struct DecodingSource {
     /// The payload of the `ALPH` chunk of a lossy image.
     let alphaPayload: Range<Int>?
 
-    var isLossless: Bool { info.compression == .lossless }
+    init(width: Int, height: Int, compression: WebPCompression, payload: Range<Int>, alphaPayload: Range<Int>?) {
+        self.width = width
+        self.height = height
+        isLossless = compression == .lossless
+        bitstream = isLossless ? (payload.lowerBound + Self.losslessHeaderSize)..<payload.upperBound : payload
+        self.alphaPayload = alphaPayload
+    }
+
+    init(frame: AnimationFrame) {
+        self.init(
+            width: frame.info.width,
+            height: frame.info.height,
+            compression: frame.info.compression,
+            payload: frame.imagePayload,
+            alphaPayload: frame.alphaPayload
+        )
+    }
+}
+
+extension WebPDecodingLimits {
+    /// Checks that a canvas of the given size stays within the pixel and memory limits.
+    func validateCanvas(width: Int, height: Int) throws(WebPError) {
+        let (pixelCount, overflow) = width.multipliedReportingOverflow(by: height)
+        guard !overflow, pixelCount <= maximumPixelCount else {
+            throw WebPError(.pixelLimitExceeded)
+        }
+        let (byteCount, byteOverflow) = pixelCount.multipliedReportingOverflow(by: 4)
+        guard !byteOverflow, byteCount <= maximumMemoryByteCount else {
+            throw WebPError(.memoryLimitExceeded)
+        }
+    }
+}
+
+/// The validated contents of a file for `WebPDecoder`.
+private struct DecodingSource {
+    enum Content {
+        case still(ImageSource)
+        case animation(AnimationFrameReader)
+    }
+
+    let info: WebPImageInfo
+    let content: Content
 
     var width: Int { info.width }
     var height: Int { info.height }
@@ -256,24 +361,22 @@ private struct DecodingSource {
     init(_ bytes: Span<UInt8>, limits: WebPDecodingLimits) throws(WebPError) {
         let layout = try WebPFileLayout(parsing: bytes)
         info = layout.info
+        try limits.validateCanvas(width: info.width, height: info.height)
 
-        guard !info.isAnimated, let payload = layout.imagePayload else {
-            throw WebPError(.animationDecodingUnsupported)
-        }
-        let (pixelCount, overflow) = info.width.multipliedReportingOverflow(by: info.height)
-        guard !overflow, pixelCount <= limits.maximumPixelCount else {
-            throw WebPError(.pixelLimitExceeded)
-        }
-        let (byteCount, byteOverflow) = pixelCount.multipliedReportingOverflow(by: 4)
-        guard !byteOverflow, byteCount <= limits.maximumMemoryByteCount else {
-            throw WebPError(.memoryLimitExceeded)
-        }
-
-        if info.compression == .lossless {
-            bitstream = (payload.lowerBound + Self.losslessHeaderSize)..<payload.upperBound
+        if let frames = layout.frames {
+            content = .animation(frames)
+        } else if let payload = layout.imagePayload {
+            content = .still(
+                ImageSource(
+                    width: info.width,
+                    height: info.height,
+                    compression: info.compression,
+                    payload: payload,
+                    alphaPayload: layout.alphaPayload
+                )
+            )
         } else {
-            bitstream = payload
+            throw WebPError(.missingImageData)
         }
-        alphaPayload = layout.alphaPayload
     }
 }

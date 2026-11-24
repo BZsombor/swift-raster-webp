@@ -99,3 +99,117 @@ private func randomLossyOptions(_ generator: inout SplitMix64) -> [String] {
     }
     return options
 }
+
+/// Builds random animations with libwebp's tools and compares every frame with `WebPAnimDecoder`.
+func runAnimationDifferentialTest(iterations: Int, seed: UInt64) throws {
+    var generator = SplitMix64(state: seed)
+    var mismatchCount = 0
+    var frameCount = 0
+
+    try withTemporaryDirectory { work in
+        let oracle = try buildAnimationOracle(in: work)
+        let animation = work.appendingPathComponent("animation.webp")
+
+        for iteration in 0..<iterations {
+            let arguments =
+                generator.next(upTo: 4) == 0
+                ? try randomEncodedAnimation(&generator, in: work)
+                : try randomMuxedAnimation(&generator, in: work)
+            try requireTool(arguments[0], Array(arguments.dropFirst()) + ["-o", animation.path])
+
+            let expected = try renderAnimation(animation, oracle: oracle)
+            var decoder = try WebPAnimationDecoder([UInt8](try Data(contentsOf: animation)))
+            var frames: [OracleFrame] = []
+            while let frame = try decoder.nextFrame() {
+                let hash = frame.image.pixels.withUnsafeBytes(fnv1a)
+                frames.append(OracleFrame(endTime: frame.timestamp + frame.duration, hash: hash))
+            }
+            frameCount += expected.count
+
+            let agrees =
+                frames.count == expected.count
+                && zip(frames, expected).allSatisfy { $0.hash == $1.hash && $0.endTime == $1.endTime }
+            if !agrees {
+                mismatchCount += 1
+                print("mismatch at iteration \(iteration): \(arguments.joined(separator: " "))")
+            }
+        }
+    }
+
+    print("Compared \(iterations) animations with \(frameCount) frames, found \(mismatchCount) mismatches")
+    if mismatchCount > 0 {
+        throw ToolFailure(description: "The animation decoder disagrees with WebPAnimDecoder")
+    }
+}
+
+/// Returns the `webpmux` command for random frames, placements, blending and disposal.
+private func randomMuxedAnimation(_ generator: inout SplitMix64, in work: URL) throws -> [String] {
+    let canvasWidth = 1 + generator.next(upTo: generator.next(upTo: 4) == 0 ? 300 : 48)
+    let canvasHeight = 1 + generator.next(upTo: generator.next(upTo: 4) == 0 ? 300 : 48)
+    var arguments = ["webpmux"]
+
+    for index in 0..<(2 + generator.next(upTo: 7)) {
+        // Every frame covers the whole canvas now and then, which exercises the direct path.
+        let isFull = generator.next(upTo: 4) == 0
+        let width = isFull ? canvasWidth : 1 + generator.next(upTo: canvasWidth)
+        let height = isFull ? canvasHeight : 1 + generator.next(upTo: canvasHeight)
+        let x = isFull ? 0 : generator.next(upTo: (canvasWidth - width) / 2 + 1) * 2
+        let y = isFull ? 0 : generator.next(upTo: (canvasHeight - height) / 2 + 1) * 2
+
+        let source = work.appendingPathComponent("frame\(index).pam")
+        let frame = work.appendingPathComponent("frame\(index).webp")
+        try randomFrameImage(width: width, height: height, &generator).writePAM(to: source)
+        let options =
+            generator.next(upTo: 2) == 0
+            ? ["-lossless", "-exact", "-z", String(generator.next(upTo: 10))]
+            : [
+                "-q", String(generator.next(upTo: 101)), "-alpha_filter",
+                ["none", "fast", "best"][generator.next(upTo: 3)],
+            ]
+        try requireTool("cwebp", ["-quiet"] + options + [source.path, "-o", frame.path])
+
+        let dispose = generator.next(upTo: 3) == 0 ? 1 : 0
+        let blend = generator.next(upTo: 3) == 0 ? "-b" : "+b"
+        arguments += ["-frame", frame.path, "+\(generator.next(upTo: 200))+\(x)+\(y)+\(dispose)\(blend)"]
+    }
+    return arguments + ["-loop", String(generator.next(upTo: 4))]
+}
+
+/// Returns the `img2webp` command for a random sequence that the encoder optimizes itself.
+private func randomEncodedAnimation(_ generator: inout SplitMix64, in work: URL) throws -> [String] {
+    let width = 1 + generator.next(upTo: 96)
+    let height = 1 + generator.next(upTo: 96)
+    var arguments = ["img2webp", "-loop", "0", ["-lossy", "-lossless", "-mixed"][generator.next(upTo: 3)]]
+    if generator.next(upTo: 2) == 0 {
+        let maximum = 1 + generator.next(upTo: 8)
+        arguments += ["-kmin", String(generator.next(upTo: maximum)), "-kmax", String(maximum)]
+    }
+
+    var image = randomFrameImage(width: width, height: height, &generator)
+    for index in 0..<(2 + generator.next(upTo: 7)) {
+        // Consecutive frames share most pixels, so the encoder uses sub-rectangles and blending.
+        for _ in 0..<(1 + generator.next(upTo: 40)) {
+            let pixel = generator.next(upTo: width * height) * 4
+            for channel in 0..<4 {
+                image.pixels[pixel + channel] = generator.byte()
+            }
+        }
+        let source = work.appendingPathComponent("step\(index).pam")
+        try image.writePAM(to: source)
+        arguments += [
+            "-d", String(1 + generator.next(upTo: 200)), "-q", String(generator.next(upTo: 101)), source.path,
+        ]
+    }
+    return arguments
+}
+
+private func randomFrameImage(width: Int, height: Int, _ generator: inout SplitMix64) -> TestImage {
+    switch generator.next(upTo: 3) {
+    case 0:
+        return .gradient(width: width, height: height, translucent: generator.next(upTo: 2) == 0)
+    case 1:
+        return .noise(width: width, height: height, generator: &generator, translucent: true)
+    default:
+        return .palette(width: width, height: height, colorCount: 1 + generator.next(upTo: 8), generator: &generator)
+    }
+}
