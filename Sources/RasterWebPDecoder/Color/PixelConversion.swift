@@ -5,15 +5,21 @@ enum PixelConversion {
         var index = 0
         while index < count {
             let pixel = pixels[index]
-            let alpha = pixel &>> 24
-            if alpha != 255 {
-                let red = multiply((pixel &>> 16) & 0xFF, by: alpha)
-                let green = multiply((pixel &>> 8) & 0xFF, by: alpha)
-                let blue = multiply(pixel & 0xFF, by: alpha)
-                pixels[index] = alpha &<< 24 | red &<< 16 | green &<< 8 | blue
+            if pixel &>> 24 != 255 {
+                pixels[index] = premultiplied(pixel)
             }
             index &+= 1
         }
+    }
+
+    /// Returns a pixel with its color channels multiplied by its alpha value.
+    @inline(always)
+    static func premultiplied(_ pixel: UInt32) -> UInt32 {
+        let alpha = pixel &>> 24
+        let red = multiply((pixel &>> 16) & 0xFF, by: alpha)
+        let green = multiply((pixel &>> 8) & 0xFF, by: alpha)
+        let blue = multiply(pixel & 0xFF, by: alpha)
+        return alpha &<< 24 | red &<< 16 | green &<< 8 | blue
     }
 
     /// Returns `value * alpha / 255`, rounded to the nearest integer.
@@ -71,6 +77,47 @@ enum PixelConversion {
                 bytes[destination &+ 2] = last
                 source &+= 4
                 destination &+= 3
+                column &+= 1
+            }
+            row &+= 1
+        }
+    }
+
+    /// Writes ARGB pixels into rows of any output format, at any distance between rows.
+    static func writeRows(
+        of pixels: Span<UInt32>,
+        width: Int,
+        height: Int,
+        into output: inout MutableSpan<UInt8>,
+        bytesPerRow: Int,
+        options: WebPDecodingOptions
+    ) {
+        let premultiplies = options.alphaMode == .premultiplied
+        let layout = options.pixelFormat.layout
+        let swapsRedAndBlue = layout == .bgra || layout == .bgr
+        let hasAlpha = options.pixelFormat.bytesPerPixel == 4
+        var source = 0
+        var row = 0
+        while row < height {
+            var destination = row &* bytesPerRow
+            var column = 0
+            while column < width {
+                var pixel = pixels[source]
+                if premultiplies, pixel &>> 24 != 255 {
+                    pixel = premultiplied(pixel)
+                }
+                let red = UInt8(truncatingIfNeeded: pixel &>> 16)
+                let blue = UInt8(truncatingIfNeeded: pixel)
+                output[destination] = swapsRedAndBlue ? blue : red
+                output[destination &+ 1] = UInt8(truncatingIfNeeded: pixel &>> 8)
+                output[destination &+ 2] = swapsRedAndBlue ? red : blue
+                if hasAlpha {
+                    output[destination &+ 3] = UInt8(truncatingIfNeeded: pixel &>> 24)
+                    destination &+= 4
+                } else {
+                    destination &+= 3
+                }
+                source &+= 1
                 column &+= 1
             }
             row &+= 1

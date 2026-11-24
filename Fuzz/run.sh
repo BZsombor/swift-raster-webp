@@ -2,7 +2,7 @@
 #
 # Builds and runs a fuzzer with libFuzzer and AddressSanitizer on Linux.
 #
-#   Fuzz/run.sh <container|decoder|vp8l|vp8> [seconds]
+#   Fuzz/run.sh <container|decoder|vp8l|vp8|animation> [seconds]
 #
 # On macOS, run it in a container:
 #
@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-readonly target="${1:?usage: Fuzz/run.sh <container|decoder|vp8l|vp8> [seconds]}"
+readonly target="${1:?usage: Fuzz/run.sh <container|decoder|vp8l|vp8|animation> [seconds]}"
 readonly seconds="${2:-60}"
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -21,6 +21,7 @@ case "${target}" in
     decoder) harness="FuzzDecoder" ;;
     vp8l) harness="FuzzVP8L" ;;
     vp8) harness="FuzzVP8" ;;
+    animation) harness="FuzzAnimation" ;;
     *) echo "Unknown fuzz target: ${target}" >&2; exit 2 ;;
 esac
 

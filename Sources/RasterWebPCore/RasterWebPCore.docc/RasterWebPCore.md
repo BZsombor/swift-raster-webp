@@ -16,7 +16,17 @@ print(info.compression)
 print(info.hasAlpha)
 ```
 
-Parsing treats every input as untrusted. Invalid data produces a ``WebPError``, and parsing never copies the input.
+Read the color profile and metadata, which are returned without interpretation:
+
+```swift
+let metadata = try WebPMetadata(parsing: bytes)
+
+if let profile = metadata.iccProfile {
+    print("ICC profile of \(profile.count) bytes")
+}
+```
+
+Parsing treats every input as untrusted. Invalid data produces a ``WebPError``, and parsing never copies the input, except for the metadata that ``WebPMetadata`` returns.
 
 ## Topics
 
@@ -26,6 +36,16 @@ Parsing treats every input as untrusted. Invalid data produces a ``WebPError``, 
 - ``WebPCompression``
 - ``WebPAnimationInfo``
 - ``WebPBackgroundColor``
+
+### Reading animation frames
+
+- ``WebPFrameInfo``
+- ``WebPFrameBlending``
+- ``WebPFrameDisposal``
+
+### Reading metadata
+
+- ``WebPMetadata``
 
 ### Handling failures
 

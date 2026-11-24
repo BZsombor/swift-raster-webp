@@ -53,6 +53,13 @@ let package = Package(
             name: "RasterWebPDecoderTests",
             dependencies: ["RasterWebP", "RasterWebPCore", "RasterWebPDecoder"],
             resources: [
+                .embedInCode("Fixtures/anim_background.webp"),
+                .embedInCode("Fixtures/anim_compose.webp"),
+                .embedInCode("Fixtures/anim_edges.webp"),
+                .embedInCode("Fixtures/anim_encoder.webp"),
+                .embedInCode("Fixtures/anim_lossy_alpha.webp"),
+                .embedInCode("Fixtures/anim_metadata.webp"),
+                .embedInCode("Fixtures/anim_single.webp"),
                 .embedInCode("Fixtures/extended.webp"),
                 .embedInCode("Fixtures/gradient.webp"),
                 .embedInCode("Fixtures/gradient_alpha.webp"),
@@ -74,6 +81,7 @@ let package = Package(
                 .embedInCode("Fixtures/palette_2.webp"),
                 .embedInCode("Fixtures/palette_256.webp"),
                 .embedInCode("Fixtures/palette_4.webp"),
+                .embedInCode("Golden/animations.tsv"),
                 .embedInCode("Golden/fixtures.tsv"),
             ]
         ),

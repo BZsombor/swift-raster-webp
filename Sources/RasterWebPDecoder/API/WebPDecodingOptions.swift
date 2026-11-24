@@ -51,6 +51,15 @@ public struct WebPDecodingLimits: Hashable, Sendable {
     /// The largest amount of working memory, in bytes, that decoding may allocate.
     public var maximumMemoryByteCount: Int
 
+    /// The largest number of frames that an animation may have.
+    public var maximumFrameCount = 65_536
+
+    /// The largest number of pixels that the frames of an animation may have together.
+    ///
+    /// This bounds the work of decoding an animation, whose frames may each be as large as the
+    /// canvas.
+    public var maximumAnimationPixelCount = Int(clamping: UInt64(1) << 32)
+
     /// Creates decoding limits.
     ///
     /// - Parameters:

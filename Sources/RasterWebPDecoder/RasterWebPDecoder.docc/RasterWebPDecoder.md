@@ -12,9 +12,18 @@ import RasterWebP
 let image = try WebPDecoder.decode(bytes)
 ```
 
-Every input is treated as untrusted. Invalid data produces a `WebPError`, and ``WebPDecodingLimits`` restricts the resources that a file can use.
+Decode every frame of an animation:
 
-This version decodes lossless images. Lossy and animated files produce an error whose kind is `unsupportedFeature`.
+```swift
+var decoder = try WebPAnimationDecoder(bytes)
+while let frame = try decoder.nextFrame() {
+    show(frame.image, for: frame.duration)
+}
+```
+
+The decoder handles lossless (VP8L) and lossy (VP8) images, transparency and animations. For an animation, ``WebPDecoder`` returns the first frame.
+
+Every input is treated as untrusted. Invalid data produces a `WebPError`, and ``WebPDecodingLimits`` restricts the resources that a file can use.
 
 ## Topics
 
@@ -22,6 +31,12 @@ This version decodes lossless images. Lossy and animated files produce an error 
 
 - ``WebPDecoder``
 - ``WebPImage``
+
+### Decoding animations
+
+- ``WebPAnimationDecoder``
+- ``WebPAnimationFrame``
+- ``WebPFrameTiming``
 
 ### Configuring the output
 

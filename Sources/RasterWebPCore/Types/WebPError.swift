@@ -96,11 +96,10 @@ extension WebPError {
         case alphaInvalidCompression
         case alphaDataTooShort
 
-        case lossyDecodingUnsupported
-        case animationDecodingUnsupported
-
         case pixelLimitExceeded
         case memoryLimitExceeded
+        case frameLimitExceeded
+        case animationPixelLimitExceeded
 
         case outputBufferTooSmall
         case invalidBytesPerRow
@@ -124,9 +123,7 @@ extension WebPError {
                 .vp8lInvalidCodeLengths, .vp8lInvalidBackwardReference, .vp8InvalidPartitions,
                 .alphaInvalidCompression, .alphaDataTooShort:
                 .malformedBitstream
-            case .lossyDecodingUnsupported, .animationDecodingUnsupported:
-                .unsupportedFeature
-            case .pixelLimitExceeded, .memoryLimitExceeded:
+            case .pixelLimitExceeded, .memoryLimitExceeded, .frameLimitExceeded, .animationPixelLimitExceeded:
                 .limitExceeded
             case .outputBufferTooSmall, .invalidBytesPerRow:
                 .invalidOutputBuffer
@@ -173,10 +170,10 @@ extension WebPError {
             case .vp8InvalidPartitions: "The VP8 partitions do not fit in their chunk."
             case .alphaInvalidCompression: "The alpha compression method is unknown."
             case .alphaDataTooShort: "The uncompressed alpha data is too short."
-            case .lossyDecodingUnsupported: "Decoding lossy WebP images is not supported yet."
-            case .animationDecodingUnsupported: "Decoding animated WebP images is not supported yet."
             case .pixelLimitExceeded: "The image has more pixels than the configured limit."
             case .memoryLimitExceeded: "Decoding the image needs more memory than the configured limit."
+            case .frameLimitExceeded: "The animation has more frames than the configured limit."
+            case .animationPixelLimitExceeded: "The animation's frames have more pixels than the configured limit."
             case .outputBufferTooSmall: "The output buffer is too small for the decoded image."
             case .invalidBytesPerRow: "The output row size is too small for the image width."
             }

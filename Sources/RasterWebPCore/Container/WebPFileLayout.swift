@@ -9,10 +9,29 @@ package struct WebPFileLayout {
     /// The payload of the `ALPH` chunk that belongs to a lossy still image, if there is one.
     package let alphaPayload: Range<Int>?
 
-    init(info: WebPImageInfo, imagePayload: Range<Int>?, alphaPayload: Range<Int>? = nil) {
+    /// The payloads of the color profile and metadata chunks.
+    package let metadata: MetadataLocations
+
+    /// A reader positioned before the first frame, or `nil` for a still image.
+    package let frames: AnimationFrameReader?
+
+    /// The number of pixels in all frames together, or `Int.max` if that does not fit in `Int`.
+    package let framePixelCount: Int
+
+    init(
+        info: WebPImageInfo,
+        imagePayload: Range<Int>?,
+        alphaPayload: Range<Int>? = nil,
+        metadata: MetadataLocations = MetadataLocations(),
+        frames: AnimationFrameReader? = nil,
+        framePixelCount: Int? = nil
+    ) {
         self.info = info
         self.imagePayload = imagePayload
         self.alphaPayload = alphaPayload
+        self.metadata = metadata
+        self.frames = frames
+        self.framePixelCount = framePixelCount ?? area(info.width, info.height)
     }
 
     /// Locates the contents of a complete WebP file.

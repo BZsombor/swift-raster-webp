@@ -5,7 +5,7 @@ WebP support written entirely in Swift, with no C dependencies and no Foundation
 This package is the first building block of **raster**, a planned cross-platform image library for Swift.
 
 > [!IMPORTANT]
-> **Early development.** The package decodes still WebP images, both lossless and lossy, with transparency. Animations are not supported yet.
+> **Early development.** The package decodes every kind of WebP file: lossless and lossy images, transparency and animations, and it reads ICC profiles and EXIF and XMP metadata. Encoding is not supported yet.
 
 ## Usage
 
@@ -41,12 +41,24 @@ options.limits.maximumPixelCount = 50_000_000
 let image = try WebPDecoder.decode(bytes, options: options)
 ```
 
-Read the properties of a file without decoding it:
+Decode the frames of an animation. `WebPDecoder` returns the first frame of an animated file:
+
+```swift
+var decoder = try WebPAnimationDecoder(bytes)
+
+while let frame = try decoder.nextFrame() {
+    show(frame.image, at: frame.timestamp, for: frame.duration)
+}
+```
+
+Read the properties of a file without decoding it, and its color profile and metadata:
 
 ```swift
 let info = try WebPImageInfo(parsing: bytes)
+print(info.width, info.height, info.compression, info.hasAlpha, info.isAnimated)
 
-print(info.width, info.height, info.compression, info.hasAlpha)
+let metadata = try WebPMetadata(parsing: bytes)
+print(metadata.iccProfile?.count, metadata.exif?.count, metadata.xmp?.count)
 ```
 
 ## Performance
@@ -75,7 +87,7 @@ swift-raster-webp decodes every file of the libwebp test corpus to the same pixe
 - [x] RIFF container parsing and image properties
 - [x] Lossless decoding (VP8L)
 - [x] Lossy decoding (VP8) with alpha
-- [ ] Animation decoding, and ICC, EXIF and XMP access
+- [x] Animation decoding, and ICC, EXIF and XMP access
 - [ ] Lossless encoding, then the 1.0 release
 - [ ] Lossy and animation encoding
 
